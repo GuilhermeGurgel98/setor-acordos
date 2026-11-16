@@ -59,3 +59,55 @@ create policy acordos_apagar on public.acordos_docs for delete to authenticated
 do $$ begin
   alter publication supabase_realtime add table public.acordos_docs;
 exception when duplicate_object then null; end $$;
+-- Registro de atividades (auditoria), gravado pelo banco
+create table if not exists public.acordos_log (
+  id bigserial primary key,
+  ts timestamptz not null default now(),
+  uid uuid,
+  email text,
+  acao text not null,
+  col text,
+  doc_id text,
+  rotulo text,
+  campos text[],
+  detalhe jsonb
+);
+create index if not exists acordos_log_ts on public.acordos_log (ts desc);
+alter table public.acordos_log enable row level security;
+drop policy if exists acordos_log_ler on public.acordos_log;
+create policy acordos_log_ler on public.acordos_log for select to authenticated using (public.acordos_is_admin());
+-- sem politicas de insert/update/delete: ninguem altera o registro pelo app
+
+create or replace function public.acordos_log_trg() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare r jsonb; o jsonb; ch text[]; rot text; c text; i text;
+begin
+  if tg_op = 'DELETE' then r := old.data; c := old.col; i := old.id; else r := new.data; c := new.col; i := new.id; end if;
+  if tg_op = 'UPDATE' then
+    o := old.data;
+    select array_agg(k) into ch from (
+      select coalesce(n.key, x.key) k from jsonb_each(r) n full join jsonb_each(o) x on n.key = x.key
+      where n.value is distinct from x.value) z;
+    if ch is null then return null; end if;
+  end if;
+  rot := coalesce(r->>'nome', r->>'titulo', r->>'numero', r->>'cliente', r->>'descricao', r->>'resumo', '');
+  insert into public.acordos_log (uid, email, acao, col, doc_id, rotulo, campos, detalhe)
+  values (auth.uid(), auth.jwt()->>'email', lower(tg_op), c, i, left(rot, 200), ch,
+          jsonb_strip_nulls(jsonb_build_object('status', r->'status', 'etapa', r->'etapa', 'resultado', r->'resultado', 'canal', r->'canal')));
+  return null;
+end $$;
+
+drop trigger if exists acordos_log_aiud on public.acordos_docs;
+create trigger acordos_log_aiud after insert or update or delete on public.acordos_docs
+for each row execute function public.acordos_log_trg();
+
+create or replace function public.acordos_registrar(acao text, rotulo text default null) returns void
+language sql security definer set search_path = public as $$
+  insert into public.acordos_log (uid, email, acao, rotulo)
+  select auth.uid(), auth.jwt()->>'email', acao, left(rotulo, 200)
+  where auth.uid() is not null and acao in ('acesso', 'saida');
+$$;
+revoke all on function public.acordos_registrar(text, text) from public, anon;
+grant execute on function public.acordos_registrar(text, text) to authenticated;
+
+select 'ok' as resultado;

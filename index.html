@@ -254,9 +254,9 @@ const AREAS=['Defesa em execução bancária','Revisional / consignado','Busca e
 
 /* ===================== estado ===================== */
 const S={db:null,user:null,uid:null,local:false,canWrite:true,isEditor:false,
-  equipe:[],vinculos:{},contatos:[],casos:[],tarefas:[],leads:[],radar:[],pauta:[],clientes:[],msgs:[],atividades:[],conferencia:[],nichos:[],plano:[],isOwner:false,sample:null,config:{faixa1:85,faixa2:65,teto:0},
-  me:null,loaded:{},route:'hoje',f:{per:'30',membro:'',cp:'',resp:'',status:'abertas',capt:'nichos',ac:'funil',busca:'',at:'abertos',dst:'abertas',dia:'',diaM:''}};
-const COLS=['equipe','vinculos','contatos','casos','tarefas','leads','radar','pauta','clientes','msgs','atividades','conferencia','nichos','plano'];
+  equipe:[],processos:[],log:[],logInfo:null,vinculos:{},contatos:[],casos:[],tarefas:[],leads:[],radar:[],pauta:[],clientes:[],msgs:[],atividades:[],conferencia:[],nichos:[],plano:[],isOwner:false,sample:null,config:{faixa1:85,faixa2:65,teto:0},
+  me:null,loaded:{},route:'hoje',f:{buscaP:'',atvM:'',atvCol:'',per:'30',membro:'',cp:'',resp:'',status:'abertas',capt:'nichos',ac:'funil',busca:'',at:'abertos',dst:'abertas',dia:'',diaM:''}};
+const COLS=['equipe','processos','vinculos','contatos','casos','tarefas','leads','radar','pauta','clientes','msgs','atividades','conferencia','nichos','plano'];
 
 /* camada de dados: banco compartilhado do artifact, ou memória local quando aberto fora do claude.ai */
 const API={
@@ -361,6 +361,8 @@ function metricas(mid,per){
 
 /* ===================== navegação ===================== */
 const IC={
+  processos:'<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7M9 8h3"/>',
+  atividades:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>',
   hoje:'<path d="M4 6h16M4 12h10M4 18h7"/>',
   atendimento:'<path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/>',
   clientes:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5"/><path d="M16 5.5a3 3 0 0 1 0 5.6M18 14.8c1.6.8 2.6 2.5 3 5.2"/>',
@@ -373,8 +375,8 @@ const IC={
   delegar:'<path d="M4 7h9M4 12h6M4 17h9"/><path d="M15 9l4 3-4 3"/>',
   equipe:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'};
 const ROTAS=[
-  ['hoje','Hoje'],['diario','Meu dia'],['atendimento','Atendimento'],['clientes','Clientes'],['acordos','Acordos'],['tarefas','Tarefas'],['captacao','Captação'],
-  ['_sep','Gestão'],['delegar','Delegar tarefas'],['conferencia','Conferência'],['painel','Produtividade'],['equipe','Equipe e alçadas']];
+  ['hoje','Hoje'],['diario','Meu dia'],['atendimento','Atendimento'],['clientes','Clientes'],['processos','Processos'],['acordos','Acordos'],['tarefas','Tarefas'],['captacao','Captação'],
+  ['_sep','Gestão'],['delegar','Delegar tarefas'],['conferencia','Conferência'],['painel','Produtividade'],['atividades','Registro de atividades'],['equipe','Equipe e alçadas']];
 function rotaAtual(){const h=location.hash.slice(1);if(h==='aprovacoes'){S.f.ac='aprov';return 'acordos'}return ROTAS.some(r=>r[0]===h)?h:'hoje'}
 window.addEventListener('hashchange',()=>{S.route=rotaAtual();render()});
 
@@ -384,7 +386,7 @@ function renderNav(){
   const novos=S.leads.filter(l=>['Novo','Em triagem'].includes(l.status)).length;
   $('#nav').innerHTML=ROTAS.map(([k,l])=>{
     if(k==='_sep')return isGestor()||S.isEditor?`<div class="sep">${l}</div>`:'';
-    if(['painel','equipe','delegar','conferencia'].includes(k)&&!isGestor())return k==='painel'?`<a href="#painel" class="${S.route===k?'on':''}"><span class="ni"><svg viewBox="0 0 24 24">${IC.painel}</svg>Meu desempenho</span></a>`:'';
+    if(['painel','equipe','delegar','conferencia','atividades'].includes(k)&&!isGestor())return k==='painel'?`<a href="#painel" class="${S.route===k?'on':''}"><span class="ni"><svg viewBox="0 0 24 24">${IC.painel}</svg>Meu desempenho</span></a>`:'';
     let b='';if(k==='acordos'&&pend)b=`<span class="badge">${pend}</span>`;if(k==='hoje'&&atras)b=`<span class="badge">${atras}</span>`;if(k==='atendimento'&&novos)b=`<span class="badge soft">${novos}</span>`;
     return `<a href="#${k}" class="${S.route===k?'on':''}"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>${l}</span>${b}</a>`}).join('');
   const travado=!S.isOwner&&!S.local&&!!vinculadoA();
@@ -562,7 +564,7 @@ function formTarefa(t={},pre={}){
     {k:'prazo',label:'Prazo (dia)',type:'date',req:true},{k:'prazoHora',label:'Até que horas',type:'time'},
     {k:'prioridade',label:'Prioridade',type:'select',options:['Alta','Normal','Baixa'],blank:false},
     {k:'pop',label:'POP aplicável',type:'select',options:Object.entries(POPS).map(([k,v])=>[k,k+' '+v[0]]),blank:'Nenhum'},
-    {k:'clienteId',label:'Cliente',type:'select',options:opClientes,blank:'Nenhum'},{k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:'Instruções para quem vai fazer',type:'textarea',full:true}];
+    {k:'clienteId',label:'Cliente',type:'select',options:opClientes,blank:'Nenhum'},{k:'processoId',label:'Processo',type:'select',options:()=>S.processos.slice().sort((a,b)=>(nomeCli(a.clienteId)||'').localeCompare(nomeCli(b.clienteId)||'')).map(p=>[p.id,p.numero+' · '+nomeCli(p.clienteId)]),blank:'Nenhum'},{k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:'Instruções para quem vai fazer',type:'textarea',full:true}];
   abrirForm({titulo:novo?'Delegar tarefa':'Editar tarefa',fields,values:{prioridade:'Normal',prazo:hoje(),prazoHora:'18:00',responsavel:S.me||'',...pre,...t},botao:novo?'Delegar':'Salvar',
     apagar:novo||!podeEditarTarefa(t)?null:async()=>salvar(()=>API.del('tarefas',t.id),'Tarefa apagada'),
     onSubmit:async v=>{const id=t.id||nid();const doc={...t,...v,status:t.status||'aberta',criadoEm:t.criadoEm||hoje(),criadoTs:t.criadoTs||Date.now(),criadoPor:t.criadoPor||S.me||'',atualizacoes:t.atualizacoes||[]};delete doc.id;
@@ -791,6 +793,7 @@ function vPainel(){
     <td><div class="row" style="gap:6px;flex-wrap:nowrap"><div class="bar ok" style="width:80px"><i style="width:${x.valor/maxV*100}%"></i></div><span>${brlK(x.valor)}</span></div></td>
     <td class="n">${pct(x.taxa)}</td><td class="n">${isFinite(x.tempo)?Math.round(x.tempo):'–'}</td><td class="n">${pct(x.noPrazo)}</td><td class="n">${dur(statsTarefas(m.id,per).tExec)}</td>
     <td class="n">${x.atras?`<span class="pill bad">${x.atras}</span>`:'0'}</td><td class="n">${x.parados?`<span class="pill warn">${x.parados}</span>`:'0'}</td><td class="n">${x.leads} / ${x.conv}</td></tr>`).join('')}</table></div>`:'<p class="empty">Cadastre a equipe para ver a produtividade por pessoa.</p>'}</section>
+  <section class="card"><header><h2>Atividades no app por pessoa</h2><a class="small" href="#atividades">Ver registro completo e relatório</a></header>${(carregarLog(),tabelaResumoLog(S.log))}</section>
   <div class="grid g2">
   <section class="card"><header><h2>Por tipo de contraparte</h2></header>${porCp.length?`<div class="tw"><table><tr><th>Contraparte</th><th class="n">Em negociação</th><th class="n">Fechados</th><th class="n">Sem acordo</th><th class="n">Taxa</th><th class="n">Valor</th></tr>${porCp.map(o=>`<tr><td>${o.cp}</td><td class="n">${o.ab}</td><td class="n">${o.fe}</td><td class="n">${o.re}</td><td class="n">${pct(o.taxa)}</td><td class="n">${brlK(o.v)}</td></tr>`).join('')}</table></div>`:'<p class="empty">Sem acordos no período.</p>'}
   <p class="small muted">Referência nacional: conciliação geral de 10,4% no Judiciário; cerca de 25% nas ações contra o INSS. Compare cada contraparte com a própria média, não com a do setor.</p></section>
@@ -1098,16 +1101,110 @@ ${st.urgencia?'Prazo urgente informado: '+fd(st.urgencia):''}`;
   });
 }
 
+
+/* ---------- processos ---------- */
+const FASES=['Em andamento','Aguardando citação','Instrução','Audiência marcada','Sentenciado','Em recurso','Cumprimento de sentença','Suspenso','Acordo homologado','Arquivado'];
+function formProcesso(p={},pre={}){
+  const novo=!p.id;
+  const fields=[{k:'numero',label:'Número do processo',req:true,ph:'0000000-00.0000.0.00.0000'},{k:'clienteId',label:'Cliente',type:'select',options:opClientes,req:true},
+    {k:'tribunal',label:'Tribunal / sistema',ph:'TJTO, eproc'},{k:'vara',label:'Vara / juízo'},{k:'comarca',label:'Comarca'},
+    {k:'tipo',label:'Tipo de ação / assunto'},{k:'parteContraria',label:'Parte contrária'},{k:'polo',label:'Cliente é',type:'select',options:['Autor','Réu','Exequente','Executado','Terceiro']},
+    {k:'fase',label:'Fase',type:'select',options:FASES,blank:false},{k:'valor',label:'Valor da causa (R$)',type:'number'},{k:'advogado',label:'Advogado responsável'},
+    {k:'proximaTipo',label:'Próximo ato',type:'select',options:['Audiência','Prazo','Perícia','Pagamento','Retorno ao cliente']},{k:'proximaData',label:'Data do próximo ato',type:'date'},
+    {k:'link',label:'Link do processo',full:true},{k:'obs',label:'Observações',type:'textarea',full:true}];
+  abrirForm({titulo:novo?'Cadastrar processo':'Processo '+(p.numero||''),fields,values:{fase:'Em andamento',...pre,...p},botao:novo?'Cadastrar':'Salvar',
+    apagar:novo||!isGestor()?null:async()=>salvar(()=>API.del('processos',p.id),'Processo apagado'),
+    onSubmit:async v=>{const id=p.id||nid();const d={...p,...v,atualizadoEm:hoje()};if(novo){d.criadoEm=hoje();d.criadoPor=S.me||''}delete d.id;
+      return salvar(()=>API.set('processos',id,d),novo?'Processo cadastrado':'Processo atualizado')}});
+}
+function vProcessos(){
+  const q=(S.f.buscaP||'').toLowerCase();
+  const ps=S.processos.filter(p=>!q||[p.numero,nomeCli(p.clienteId),p.vara,p.comarca,p.parteContraria,p.tipo,p.advogado].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=>(a.proximaData||'9999').localeCompare(b.proximaData||'9999')||(nomeCli(a.clienteId)||'').localeCompare(nomeCli(b.clienteId)||''));
+  return `<div class="top"><div><h1>Processos</h1><p>Processos dos clientes do setor. Cadastre aqui ou pela ficha do cliente.</p></div><button class="btn p" data-nproc="">Cadastrar processo</button></div>
+  <div class="filters"><input id="fBuscaP" type="search" placeholder="Buscar por número, cliente, vara, parte contrária" value="${esc(S.f.buscaP)}" style="min-width:300px"><span class="small muted">${ps.length} de ${S.processos.length}</span></div>
+  <section class="card">${ps.length?`<div class="tw"><table><tr><th>Número</th><th>Cliente</th><th>Vara / comarca</th><th>Parte contrária</th><th>Fase</th><th>Próximo ato</th><th>Advogado</th></tr>
+  ${ps.map(p=>`<tr class="click" data-proc="${p.id}"><td><b>${esc(p.numero)}</b>${p.tipo?`<div class="small muted">${esc(p.tipo)}</div>`:''}</td><td>${esc(nomeCli(p.clienteId))}</td><td>${esc([p.vara,p.comarca].filter(Boolean).join(' · '))}</td><td>${esc(p.parteContraria||'')}</td><td><span class="pill n">${esc(p.fase||'')}</span></td><td>${p.proximaData?`${esc(p.proximaTipo||'')} ${fd(p.proximaData)}`:'–'}</td><td>${esc(p.advogado||'')}</td></tr>`).join('')}</table></div>`
+  :'<div class="empty-big"><p>Nenhum processo cadastrado.</p><button class="btn p" data-nproc="">Cadastrar o primeiro</button></div>'}</section>`;
+}
+
+/* ---------- registro de atividades (gravado pelo banco) ---------- */
+const COL_NOME={clientes:'cliente',processos:'processo',tarefas:'tarefa',contatos:'contato',casos:'acordo',leads:'atendimento',pauta:'pauta de conteúdo',radar:'radar da carteira',msgs:'mensagem',atividades:'atividade do dia',equipe:'pessoa da equipe',config:'alçadas',vinculos:'vínculo de login',nichos:'nicho de captação',plano:'plano de captação',conferencia:'conferência'};
+function pessoaLog(r){const v=r.uid&&S.vinculos[r.uid];return v&&membro(v.membroId)?nomeM(v.membroId):(r.email||'Desconhecido')}
+function membroLog(r){const v=r.uid&&S.vinculos[r.uid];return v?v.membroId:''}
+function descLog(r){
+  if(r.acao==='acesso')return 'Entrou no app';
+  if(r.acao==='saida')return 'Saiu do app';
+  const o=COL_NOME[r.col]||r.col||'registro',rot=r.rotulo?': '+r.rotulo:'',dt=r.detalhe||{},cs=r.campos||[];
+  if(r.acao==='insert')return (r.col==='contatos'?'Registrou contato':r.col==='leads'?'Abriu ficha de atendimento':r.col==='atividades'?'Lançou atividade do dia':r.col==='tarefas'?'Criou tarefa':'Cadastrou '+o)+rot;
+  if(r.acao==='delete')return 'Apagou '+o+rot;
+  if(r.col==='tarefas'&&cs.includes('status')){const m={andamento:'Iniciou tarefa',concluida:'Concluiu tarefa',aberta:'Reabriu tarefa'}[dt.status];if(m)return m+rot}
+  if(r.col==='tarefas'&&cs.includes('atualizacoes'))return 'Registrou andamento na tarefa'+rot;
+  if(r.col==='casos'&&cs.includes('etapa')){const e=ETAPAS[ETAPA_IDX[dt.etapa]];return 'Moveu acordo'+rot+(e?' para '+e[1]:'')}
+  if(r.col==='contatos'&&cs.includes('retornoFeito'))return 'Fez retorno combinado'+rot;
+  return 'Alterou '+o+rot+(cs.length?' ('+cs.filter(c=>!['atualizadoEm'].includes(c)).slice(0,4).join(', ')+')':'');
+}
+async function carregarLog(force){
+  if(!SB||!isGestor())return;const per=periodo(),chave=per.join('|');
+  if(!force&&S.logInfo&&S.logInfo.chave===chave&&Date.now()-S.logInfo.em<60000)return;
+  S.logInfo={chave,em:Date.now(),carregando:true};
+  const {data,error}=await SB.from('acordos_log').select('*').gte('ts',per[0]+'T00:00:00-03:00').lte('ts',per[1]+'T23:59:59-03:00').order('ts',{ascending:false}).limit(5000);
+  S.logInfo={chave,em:Date.now(),erro:error?error.message:null};S.log=data||[];render();
+}
+function resumoLog(regs){
+  const por={};
+  for(const r of regs){const k=membroLog(r)||('e:'+(r.email||'?'));const o=por[k]||(por[k]={nome:pessoaLog(r),acessos:0,ult:null,cli:0,proc:0,tc:0,tf:0,ct:0,at:0,ac:0,total:0});
+    if(r.acao==='acesso'){o.acessos++;if(!o.ult||r.ts>o.ult)o.ult=r.ts;continue}
+    if(r.acao==='saida')continue;o.total++;
+    if(r.acao==='insert'){if(r.col==='clientes')o.cli++;if(r.col==='processos')o.proc++;if(r.col==='tarefas')o.tc++;if(r.col==='contatos')o.ct++;if(r.col==='leads')o.at++;if(r.col==='casos')o.ac++}
+    if(r.acao==='update'&&r.col==='tarefas'&&(r.campos||[]).includes('status')&&(r.detalhe||{}).status==='concluida')o.tf++;
+    if(r.acao==='update'&&r.col==='casos'&&(r.campos||[]).includes('etapa'))o.ac++;}
+  return Object.values(por).sort((a,b)=>b.total-a.total);
+}
+const fdh=ts=>{const d=new Date(ts);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+function tabelaResumoLog(regs){const rs=resumoLog(regs);
+  if(S.logInfo&&S.logInfo.erro)return `<p class="banner">Não foi possível ler o registro: ${esc(S.logInfo.erro)}</p>`;
+  if(!S.logInfo||S.logInfo.carregando)return '<p class="small muted">Carregando registro de atividades…</p>';
+  return rs.length?`<div class="tw"><table><tr><th>Pessoa</th><th class="n">Acessos</th><th>Último acesso</th><th class="n">Clientes cadastrados</th><th class="n">Processos cadastrados</th><th class="n">Atendimentos</th><th class="n">Contatos</th><th class="n">Tarefas criadas</th><th class="n">Tarefas concluídas</th><th class="n">Acordos (novos/movidos)</th><th class="n">Total de ações</th></tr>
+  ${rs.map(o=>`<tr><td><b>${esc(o.nome)}</b></td><td class="n">${o.acessos}</td><td>${o.ult?fdh(o.ult):'–'}</td><td class="n">${o.cli}</td><td class="n">${o.proc}</td><td class="n">${o.at}</td><td class="n">${o.ct}</td><td class="n">${o.tc}</td><td class="n">${o.tf}</td><td class="n">${o.ac}</td><td class="n"><b>${o.total}</b></td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhuma atividade registrada no período.</p>'}
+function logFiltrado(){return S.log.filter(r=>(!S.f.atvM||membroLog(r)===S.f.atvM)&&(!S.f.atvCol||(S.f.atvCol==='acesso'?r.acao==='acesso'||r.acao==='saida':r.col===S.f.atvCol)))}
+function vAtividades(){
+  if(!isGestor())return '<p class="empty">Área da coordenação.</p>';
+  carregarLog();const per=periodo(),regs=logFiltrado();
+  return `<div class="top"><div><h1>Registro de atividades</h1><p>Tudo o que cada pessoa faz no app fica gravado pelo próprio banco, com data e hora: acessos, cadastros, alterações e exclusões. Ninguém consegue apagar esse registro. De ${fd(per[0])} a ${fd(per[1])}.</p></div>
+    <div class="row">${perSel()}<select id="fAtvM" class="btn"><option value="">Todas as pessoas</option>${opM().map(([a,b])=>`<option value="${a}" ${S.f.atvM===a?'selected':''}>${esc(b)}</option>`).join('')}</select>
+    <select id="fAtvC" class="btn"><option value="">Tudo</option><option value="acesso" ${S.f.atvCol==='acesso'?'selected':''}>Acessos</option>${Object.entries(COL_NOME).map(([k,v])=>`<option value="${k}" ${S.f.atvCol===k?'selected':''}>${esc(v[0].toUpperCase()+v.slice(1))}</option>`).join('')}</select>
+    <button class="btn" data-csv="">Baixar planilha (CSV)</button><button class="btn p" data-print="">Relatório para imprimir/PDF</button></div></div>
+  <section class="card"><header><h2>Resumo por pessoa</h2></header>${tabelaResumoLog(S.f.atvM?regs:S.log)}</section>
+  <section class="card"><header><h2>Linha do tempo</h2><span class="small muted">${regs.length} registros${regs.length>=5000?' (limite de 5.000, reduza o período)':''}</span></header>
+  ${regs.length?`<div class="tw"><table><tr><th>Data e hora</th><th>Pessoa</th><th>O que fez</th></tr>${regs.slice(0,800).map(r=>`<tr><td style="white-space:nowrap">${fdh(r.ts)}</td><td>${esc(pessoaLog(r))}</td><td>${esc(descLog(r))}</td></tr>`).join('')}</table></div>${regs.length>800?'<p class="small muted">Mostrando os 800 mais recentes. A planilha e o relatório trazem todos.</p>':''}`:'<p class="empty">Nada registrado com esses filtros.</p>'}</section>`;
+}
+function baixarCsvAtividades(){
+  const regs=logFiltrado(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const csv='﻿'+['Data e hora;Pessoa;E-mail;O que fez'].concat(regs.map(r=>[fdh(r.ts),pessoaLog(r),r.email,descLog(r)].map(q).join(';'))).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='atividades-setor-acordos-'+periodo().join('_a_')+'.csv';a.click();
+}
+function imprimirRelatorio(){
+  const per=periodo(),regs=logFiltrado(),rs=resumoLog(S.f.atvM?regs:S.log),quem=S.f.atvM?nomeM(S.f.atvM):'Toda a equipe';
+  const w=window.open('','_blank');if(!w){toast('Libere pop-ups para abrir o relatório.');return}
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de atividades</title><style>body{font:12px/1.45 Arial,sans-serif;color:#111;margin:28px}h1{font-size:18px;margin:0}h2{font-size:14px;margin:20px 0 6px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:4px 6px;text-align:left;vertical-align:top}th{background:#f2f2f2}td.n,th.n{text-align:right}.m{color:#555}</style></head><body>
+  <h1>Setor de Acordos D'Freire · Relatório de atividades</h1><div class="m">${esc(quem)} · ${fd(per[0])} a ${fd(per[1])} · gerado em ${fdh(Date.now())}</div>
+  <h2>Resumo por pessoa</h2><table><tr><th>Pessoa</th><th class="n">Acessos</th><th>Último acesso</th><th class="n">Clientes</th><th class="n">Processos</th><th class="n">Atendimentos</th><th class="n">Contatos</th><th class="n">Tarefas criadas</th><th class="n">Tarefas concluídas</th><th class="n">Acordos</th><th class="n">Total</th></tr>
+  ${rs.map(o=>`<tr><td>${esc(o.nome)}</td><td class="n">${o.acessos}</td><td>${o.ult?fdh(o.ult):'-'}</td><td class="n">${o.cli}</td><td class="n">${o.proc}</td><td class="n">${o.at}</td><td class="n">${o.ct}</td><td class="n">${o.tc}</td><td class="n">${o.tf}</td><td class="n">${o.ac}</td><td class="n">${o.total}</td></tr>`).join('')}</table>
+  <h2>Atividades em ordem cronológica</h2><table><tr><th style="width:120px">Data e hora</th><th style="width:160px">Pessoa</th><th>O que fez</th></tr>${regs.slice().reverse().map(r=>`<tr><td>${fdh(r.ts)}</td><td>${esc(pessoaLog(r))}</td><td>${esc(descLog(r))}</td></tr>`).join('')}</table>
+  <script>setTimeout(()=>print(),400)<\/script></body></html>`);w.document.close();
+}
+
 /* ---------- clientes ---------- */
 function vClientes(){
   const q=(S.f.busca||'').toLowerCase();
   let cs=S.clientes.filter(c=>!q||[c.nome,c.cpf,c.telefone,c.cidade].join(' ').toLowerCase().includes(q)).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   return `<div class="top"><div><h1>Clientes</h1><p>Cadastro dos clientes do setor. Pelo telefone, o app abre o WhatsApp com a mensagem pronta.</p></div><button class="btn p" onclick="formCliente()">Novo cliente</button></div>
   <div class="filters"><input id="fBusca" type="search" placeholder="Buscar por nome, CPF, telefone ou cidade" value="${esc(S.f.busca)}" style="min-width:280px"><span class="small muted">${cs.length} de ${S.clientes.length}</span></div>
-  <section class="card">${cs.length?`<div class="tw"><table><tr><th>Nome</th><th>WhatsApp</th><th>Cidade</th><th class="n">Acordos</th><th>Último contato</th><th></th></tr>
+  <section class="card">${cs.length?`<div class="tw"><table><tr><th>Nome</th><th>WhatsApp</th><th>Cidade</th><th class="n">Processos</th><th class="n">Acordos</th><th>Último contato</th><th></th></tr>
   ${cs.map(c=>{const casos=S.casos.filter(k=>k.clienteId===c.id||(!k.clienteId&&(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()));
     const ult=S.contatos.filter(k=>k.clienteId===c.id||(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()).map(k=>k.data).sort().pop();
-    return `<tr class="click" data-cli="${c.id}"><td><b>${esc(c.nome)}</b>${c.consentimento?'':'<div class="small muted">Sem autorização para mensagens</div>'}</td><td>${esc(c.telefone||'–')}</td><td>${esc([c.cidade,c.uf].filter(Boolean).join('/'))}</td><td class="n">${casos.length}</td><td>${fd(ult)}</td>
+    return `<tr class="click" data-cli="${c.id}"><td><b>${esc(c.nome)}</b>${c.consentimento?'':'<div class="small muted">Sem autorização para mensagens</div>'}</td><td>${esc(c.telefone||'–')}</td><td>${esc([c.cidade,c.uf].filter(Boolean).join('/'))}</td><td class="n">${S.processos.filter(p=>p.clienteId===c.id).length}</td><td class="n">${casos.length}</td><td>${fd(ult)}</td>
     <td style="white-space:nowrap"><button class="btn s" data-ntc="${c.id}">Nova tarefa</button> ${c.telefone?`<button class="btn s wa" data-wa="${c.id}">WhatsApp</button>`:''}</td></tr>`}).join('')}</table></div>`:'<div class="empty-big"><p>Nenhum cliente cadastrado.</p><button class="btn p" onclick="formCliente()">Cadastrar o primeiro</button></div>'}</section>`;
 }
 const UFS='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
@@ -1125,7 +1222,7 @@ function formCliente(c={},depois){
     onSubmit:async v=>{const tel=soDig(v.telefone);if(tel.length<10){toast('Confira o WhatsApp com DDD.');return false}
       const id=c.id||nid();const d={...c,...v,atualizadoEm:hoje()};if(novo)d.criadoEm=hoje();delete d.id;
       const ok=await salvar(()=>API.set('clientes',id,d),novo?'Cliente cadastrado':'Cadastro atualizado');if(ok&&depois)await depois(id);return ok}});
-  if(!novo){const m=$('#layer .modal');m.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{fecharModal();formTarefa({},{clienteId:c.id})});m.querySelectorAll('[data-abt]').forEach(b=>b.onclick=()=>{const t=S.tarefas.find(x=>x.id===b.dataset.abt);if(t){fecharModal();abrirTarefa(t)}});m.querySelectorAll('[data-wa2]').forEach(b=>b.onclick=()=>{fecharModal();abrirWhats(c.id,b.dataset.wa2)})}
+  if(!novo){const m=$('#layer .modal');m.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{fecharModal();formTarefa({},{clienteId:c.id})});m.querySelectorAll('[data-np]').forEach(b=>b.onclick=()=>{fecharModal();formProcesso({},{clienteId:c.id})});m.querySelectorAll('[data-abp]').forEach(b=>b.onclick=()=>{const p=S.processos.find(x=>x.id===b.dataset.abp);if(p){fecharModal();formProcesso(p)}});m.querySelectorAll('[data-abt]').forEach(b=>b.onclick=()=>{const t=S.tarefas.find(x=>x.id===b.dataset.abt);if(t){fecharModal();abrirTarefa(t)}});m.querySelectorAll('[data-wa2]').forEach(b=>b.onclick=()=>{fecharModal();abrirWhats(c.id,b.dataset.wa2)})}
 }
 function fichaCliente(c){
   const casos=S.casos.filter(k=>k.clienteId===c.id||(!k.clienteId&&(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()));
@@ -1133,6 +1230,8 @@ function fichaCliente(c){
   const tfs=S.tarefas.filter(t=>t.clienteId===c.id).sort((a,b)=>(a.status==='concluida')-(b.status==='concluida')||(a.prazo||'').localeCompare(b.prazo||''));
   return `<div class="guia"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Tarefas deste cliente</h3><button class="btn p s" type="button" data-nt="1">Nova tarefa</button></div>
   ${tfs.length?`<div class="list">${tfs.map(t=>`<div class="item"><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">${esc(nomeM(t.responsavel))} · prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" type="button" data-abt="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa ainda.</p>'}</div>
+  <div class="guia"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Processos deste cliente</h3><button class="btn s" type="button" data-np="1">Cadastrar processo</button></div>
+  ${(()=>{const ps=S.processos.filter(p=>p.clienteId===c.id);return ps.length?`<div class="list">${ps.map(p=>`<div class="item"><div class="b"><div class="t">${esc(p.numero)}</div><div class="small muted">${esc([p.vara,p.comarca].filter(Boolean).join(' · '))}${p.parteContraria?' · x '+esc(p.parteContraria):''}</div><div style="margin-top:3px"><span class="pill n">${esc(p.fase||'Em andamento')}</span>${p.proximaData?` <span class="pill warn">${esc(p.proximaTipo||'Próximo ato')} ${fd(p.proximaData)}</span>`:''}</div></div><button class="btn s" type="button" data-abp="${p.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhum processo cadastrado.</p>'})()}</div>
   <div class="guia"><h3>Mensagens rápidas</h3><div class="row">${Object.entries(MODELOS).map(([k,v])=>`<button class="btn s" type="button" data-wa2="${k}">${esc(v[0])}</button>`).join('')}</div></div>
   <div class="grid g2"><div><h3>Acordos</h3>${casos.length?`<div class="list">${casos.map(k=>`<div class="item"><div class="b"><div class="t">${esc(k.contraparte)}</div><div class="small muted">${esc(ETAPAS[ETAPA_IDX[k.etapa]||0][1])}${k.processo?' · '+esc(k.processo):''}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</div>
   <div><h3>Últimos contatos</h3>${cts.length?`<div class="list">${cts.map(k=>`<div class="item"><div class="b"><div class="small muted">${fd(k.data)} · ${esc(k.canal)}</div><div class="small">${esc(k.resumo)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</div></div>`;
@@ -1359,12 +1458,12 @@ async function removerDemo(){
 function render(){
   const a=document.activeElement;if($('#main').contains(a)&&a.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea')){S.pendRender=true;return}
   S.route=rotaAtual();renderNav();
-  const v={diario:vDiario,conferencia:vConf,delegar:vDelegar,hoje:vHoje,atendimento:vAtend,clientes:vClientes,acordos:vAcordos,tarefas:vTarefas,painel:vPainel,captacao:vCapt,equipe:vEquipe}[S.route];
+  const v={diario:vDiario,conferencia:vConf,delegar:vDelegar,hoje:vHoje,atendimento:vAtend,clientes:vClientes,processos:vProcessos,atividades:vAtividades,acordos:vAcordos,tarefas:vTarefas,painel:vPainel,captacao:vCapt,equipe:vEquipe}[S.route];
   $('#main').innerHTML=(S.canWrite?'':'<div class="banner">Seu acesso é só de leitura. Peça a quem administra o app o nível Colaborador.</div>')+v();
 }
 document.addEventListener('focusout',()=>{if(S.pendRender){setTimeout(()=>{if(S.pendRender&&!$('#main').contains(document.activeElement)){S.pendRender=false;render()}},50)}});
 $('#main').addEventListener('click',async e=>{
-  const t=e.target.closest('[data-ntc],[data-npauta],[data-nficha],[data-plano],[data-atdel],[data-cdia],[data-dl],[data-rf2],[data-wm],[data-ac],[data-cli],[data-wa],[data-msgok],[data-fa],[data-at],[data-t],[data-mv],[data-rf],[data-pp],[data-apr],[data-neg],[data-reab],[data-mf],[data-capt],[data-l],[data-rok],[data-rnew],[data-redit],[data-sat],[data-ind],[data-p],[data-m]');
+  const t=e.target.closest('[data-proc],[data-nproc],[data-csv],[data-print],[data-ntc],[data-npauta],[data-nficha],[data-plano],[data-atdel],[data-cdia],[data-dl],[data-rf2],[data-wm],[data-ac],[data-cli],[data-wa],[data-msgok],[data-fa],[data-at],[data-t],[data-mv],[data-rf],[data-pp],[data-apr],[data-neg],[data-reab],[data-mf],[data-capt],[data-l],[data-rok],[data-rnew],[data-redit],[data-sat],[data-ind],[data-p],[data-m]');
   if(!t){if(e.target.id==='btnResumo'){try{await navigator.clipboard.writeText(resumoTexto());toast('Resumo copiado')}catch(err){abrirModal(`<header><h2>Resumo</h2><button class="btn s" onclick="fecharModal()">Fechar</button></header><textarea style="width:100%;min-height:300px">${esc(resumoTexto())}</textarea>`)}}
     if(e.target.id==='btnCfg'){const f1=+$('#c1').value,f2=+$('#c2').value,te=+$('#c3').value||0;if(!(f1>f2&&f2>0&&f1<=100)){toast('A faixa do integrante precisa ser maior que a do coordenador.');return}await salvar(()=>API.setCfg({faixa1:f1,faixa2:f2,teto:te}),'Alçadas salvas')}
     if(e.target.id==='btnAddAt')await addAtividade();
@@ -1375,6 +1474,10 @@ $('#main').addEventListener('click',async e=>{
     return}
   const d=t.dataset;
   if(d.wm){const x=S.msgDia&&S.msgDia[d.wm];x&&abrirWhats(x.cli?.id||'',x.modelo,x.extra,x.key);return}
+  if(d.proc){const p=S.processos.find(x=>x.id===d.proc);p&&formProcesso(p);return}
+  if(d.nproc!=null){formProcesso({},d.nproc?{clienteId:d.nproc}:{});return}
+  if(d.csv!=null){baixarCsvAtividades();return}
+  if(d.print!=null){imprimirRelatorio();return}
   if(d.ntc){formTarefa({},{clienteId:d.ntc});return}
   if(d.npauta){const n=S.nichos.find(x=>x.id===d.npauta);n&&await nichoPauta(n);return}
   if(d.nficha){const n=S.nichos.find(x=>x.id===d.nficha);n&&fichaAtendimento({area:n.area,origem:''});return}
@@ -1411,7 +1514,7 @@ $('#main').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='atD
 $('#main').addEventListener('change',e=>{
   const id=e.target.id;
   if(id==='fResp')S.f.resp=e.target.value;else if(id==='fCp')S.f.cp=e.target.value;else if(id==='fStatus')S.f.status=e.target.value;
-  else if(id==='fPer')S.f.per=e.target.value;else if(id==='fDia')S.f.dia=e.target.value;else if(id==='fDiaM')S.f.diaM=e.target.value;else if(id==='fDst')S.f.dst=e.target.value;else if(id==='fBusca')S.f.busca=e.target.value;else if(id==='fMembro')S.f.membro=e.target.value;else return;
+  else if(id==='fPer')S.f.per=e.target.value;else if(id==='fDia')S.f.dia=e.target.value;else if(id==='fDiaM')S.f.diaM=e.target.value;else if(id==='fDst')S.f.dst=e.target.value;else if(id==='fBusca')S.f.busca=e.target.value;else if(id==='fBuscaP')S.f.buscaP=e.target.value;else if(id==='fAtvM')S.f.atvM=e.target.value;else if(id==='fAtvC')S.f.atvCol=e.target.value;else if(id==='fMembro')S.f.membro=e.target.value;else return;
   e.target.blur();render();
 });
 
@@ -1499,7 +1602,7 @@ function telaAuth(modo,msg,cls){
       history.replaceState(null,'',location.pathname);iniciarApp()};
   }
 }
-async function sair(){try{await SB.auth.signOut()}catch(e){}try{localStorage.removeItem('setor_me')}catch(e){}location.href=location.pathname}
+async function sair(){try{await SB.rpc('acordos_registrar',{acao:'saida',rotulo:null});sessionStorage.removeItem('acesso_reg')}catch(e){}try{await SB.auth.signOut()}catch(e){}try{localStorage.removeItem('setor_me')}catch(e){}location.href=location.pathname}
 let INICIADO=false;
 async function iniciarApp(){
   if(INICIADO)return;INICIADO=true;
@@ -1509,6 +1612,7 @@ async function iniciarApp(){
   S.uid=user.id;S.email=user.email;
   try{const {data}=await SB.rpc('acordos_is_admin');S.isEditor=!!data;S.isOwner=!!data}catch(e){}
   S.db=criarDB(SB);S.sample=null;S.canWrite=true;
+  try{if(!sessionStorage.getItem('acesso_reg')){await SB.rpc('acordos_registrar',{acao:'acesso',rotulo:navigator.userAgent.includes('Mobi')?'celular':'computador'});sessionStorage.setItem('acesso_reg','1')}}catch(e){}
   ligar();render();
 }
 (async function init(){
