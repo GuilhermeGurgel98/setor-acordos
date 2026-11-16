@@ -1129,7 +1129,7 @@ function vProcessos(){
 }
 
 /* ---------- registro de atividades (gravado pelo banco) ---------- */
-const COL_NOME={clientes:'cliente',processos:'processo',tarefas:'tarefa',contatos:'contato',casos:'acordo',leads:'atendimento',pauta:'pauta de conteúdo',radar:'radar da carteira',msgs:'mensagem',atividades:'atividade do dia',equipe:'pessoa da equipe',config:'alçadas',vinculos:'vínculo de login',nichos:'nicho de captação',plano:'plano de captação',conferencia:'conferência'};
+const COL_NOME={clientes:'cliente',processos:'processo',tarefas:'tarefa',contatos:'contato',casos:'acordo',leads:'atendimento',pauta:'pauta de conteúdo',radar:'radar da carteira',msgs:'mensagem',atividades:'Meu dia (atividades lançadas)',equipe:'pessoa da equipe',config:'alçadas',vinculos:'vínculo de login',nichos:'nicho de captação',plano:'plano de captação',conferencia:'conferência'};
 function pessoaLog(r){const v=r.uid&&S.vinculos[r.uid];return v&&membro(v.membroId)?nomeM(v.membroId):(r.email||'Desconhecido')}
 function membroLog(r){const v=r.uid&&S.vinculos[r.uid];return v?v.membroId:''}
 function descLog(r){
@@ -1159,14 +1159,25 @@ function resumoLog(regs){
     if(r.acao==='insert'){if(r.col==='clientes')o.cli++;if(r.col==='processos')o.proc++;if(r.col==='tarefas')o.tc++;if(r.col==='contatos')o.ct++;if(r.col==='leads')o.at++;if(r.col==='casos')o.ac++}
     if(r.acao==='update'&&r.col==='tarefas'&&(r.campos||[]).includes('status')&&(r.detalhe||{}).status==='concluida')o.tf++;
     if(r.acao==='update'&&r.col==='casos'&&(r.campos||[]).includes('etapa'))o.ac++;}
+  for(const i of diarioPeriodo()){const k=i.membroId;const o=por[k]||(por[k]={nome:nomeM(k),acessos:0,ult:null,cli:0,proc:0,tc:0,tf:0,ct:0,at:0,ac:0,total:0});o.dn=(o.dn||0)+1;o.dmin=(o.dmin||0)+(+i.min||0)}
   return Object.values(por).sort((a,b)=>b.total-a.total);
 }
 const fdh=ts=>{const d=new Date(ts);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
 function tabelaResumoLog(regs){const rs=resumoLog(regs);
   if(S.logInfo&&S.logInfo.erro)return `<p class="banner">Não foi possível ler o registro: ${esc(S.logInfo.erro)}</p>`;
   if(!S.logInfo||S.logInfo.carregando)return '<p class="small muted">Carregando registro de atividades…</p>';
-  return rs.length?`<div class="tw"><table><tr><th>Pessoa</th><th class="n">Acessos</th><th>Último acesso</th><th class="n">Clientes cadastrados</th><th class="n">Processos cadastrados</th><th class="n">Atendimentos</th><th class="n">Contatos</th><th class="n">Tarefas criadas</th><th class="n">Tarefas concluídas</th><th class="n">Acordos (novos/movidos)</th><th class="n">Total de ações</th></tr>
-  ${rs.map(o=>`<tr><td><b>${esc(o.nome)}</b></td><td class="n">${o.acessos}</td><td>${o.ult?fdh(o.ult):'–'}</td><td class="n">${o.cli}</td><td class="n">${o.proc}</td><td class="n">${o.at}</td><td class="n">${o.ct}</td><td class="n">${o.tc}</td><td class="n">${o.tf}</td><td class="n">${o.ac}</td><td class="n"><b>${o.total}</b></td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhuma atividade registrada no período.</p>'}
+  return rs.length?`<div class="tw"><table><tr><th>Pessoa</th><th class="n">Acessos</th><th>Último acesso</th><th class="n">Clientes cadastrados</th><th class="n">Processos cadastrados</th><th class="n">Atendimentos</th><th class="n">Contatos</th><th class="n">Tarefas criadas</th><th class="n">Tarefas concluídas</th><th class="n">Acordos (novos/movidos)</th><th class="n">Meu dia</th><th class="n">Total de ações</th></tr>
+  ${rs.map(o=>`<tr><td><b>${esc(o.nome)}</b></td><td class="n">${o.acessos}</td><td>${o.ult?fdh(o.ult):'–'}</td><td class="n">${o.cli}</td><td class="n">${o.proc}</td><td class="n">${o.at}</td><td class="n">${o.ct}</td><td class="n">${o.tc}</td><td class="n">${o.tf}</td><td class="n">${o.ac}</td><td class="n">${o.dn||0} · ${min2h(o.dmin||0)}</td><td class="n"><b>${o.total}</b></td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhuma atividade registrada no período.</p>'}
+function diarioPeriodo(){const per=periodo();
+  return S.atividades.filter(a=>noPer(a.data,per)&&(!S.f.atvM||a.membroId===S.f.atvM)).flatMap(a=>(a.itens||[]).map(i=>({...i,data:a.data,membroId:a.membroId})))
+    .sort((a,b)=>(a.data+(a.ini||'')).localeCompare(b.data+(b.ini||'')));}
+function linhaTempo(){
+  const c=S.f.atvCol,out=[];
+  if(c!=='atividades')for(const r of logFiltrado())if(r.col!=='atividades')out.push({ts:new Date(r.ts).getTime(),pessoa:pessoaLog(r),email:r.email||'',txt:descLog(r)});
+  if(!c||c==='atividades')for(const i of diarioPeriodo())out.push({ts:new Date(i.data+'T'+(i.ini||'00:00')+':00').getTime(),pessoa:nomeM(i.membroId),email:'',txt:`Meu dia (${i.ini} às ${i.fim}, ${min2h(i.min)}) · ${i.tipo}: ${i.desc}${i.ref?' · Cliente/processo: '+i.ref:''}`});
+  return out.sort((a,b)=>b.ts-a.ts);
+}
+function tabelaDiario(its){return its.length?`<div class="tw"><table><tr><th>Data</th><th>Início</th><th>Fim</th><th class="n">Duração</th><th>Pessoa</th><th>Tipo</th><th>Cliente / processo</th><th>O que foi feito</th></tr>${its.map(i=>`<tr><td>${fd(i.data)}</td><td>${esc(i.ini)}</td><td>${esc(i.fim)}</td><td class="n">${min2h(i.min)}</td><td>${esc(nomeM(i.membroId))}</td><td>${esc(i.tipo)}</td><td>${esc(i.ref||'')}</td><td style="white-space:normal">${esc(i.desc)}</td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhuma atividade lançada no Meu dia neste período.</p>'}
 function logFiltrado(){return S.log.filter(r=>(!S.f.atvM||membroLog(r)===S.f.atvM)&&(!S.f.atvCol||(S.f.atvCol==='acesso'?r.acao==='acesso'||r.acao==='saida':r.col===S.f.atvCol)))}
 function vAtividades(){
   if(!isGestor())return '<p class="empty">Área da coordenação.</p>';
@@ -1176,22 +1187,24 @@ function vAtividades(){
     <select id="fAtvC" class="btn"><option value="">Tudo</option><option value="acesso" ${S.f.atvCol==='acesso'?'selected':''}>Acessos</option>${Object.entries(COL_NOME).map(([k,v])=>`<option value="${k}" ${S.f.atvCol===k?'selected':''}>${esc(v[0].toUpperCase()+v.slice(1))}</option>`).join('')}</select>
     <button class="btn" data-csv="">Baixar planilha (CSV)</button><button class="btn p" data-print="">Relatório para imprimir/PDF</button></div></div>
   <section class="card"><header><h2>Resumo por pessoa</h2></header>${tabelaResumoLog(S.f.atvM?regs:S.log)}</section>
-  <section class="card"><header><h2>Linha do tempo</h2><span class="small muted">${regs.length} registros${regs.length>=5000?' (limite de 5.000, reduza o período)':''}</span></header>
-  ${regs.length?`<div class="tw"><table><tr><th>Data e hora</th><th>Pessoa</th><th>O que fez</th></tr>${regs.slice(0,800).map(r=>`<tr><td style="white-space:nowrap">${fdh(r.ts)}</td><td>${esc(pessoaLog(r))}</td><td>${esc(descLog(r))}</td></tr>`).join('')}</table></div>${regs.length>800?'<p class="small muted">Mostrando os 800 mais recentes. A planilha e o relatório trazem todos.</p>':''}`:'<p class="empty">Nada registrado com esses filtros.</p>'}</section>`;
+  ${!S.f.atvCol||S.f.atvCol==='atividades'?`<section class="card"><header><h2>Atividades lançadas no Meu dia</h2><span class="small muted">${(()=>{const d=diarioPeriodo();return d.length+' atividades · '+min2h(d.reduce((s,i)=>s+(+i.min||0),0))})()}</span></header>${tabelaDiario(diarioPeriodo())}</section>`:''}
+  <section class="card"><header><h2>Linha do tempo</h2><span class="small muted">${(()=>{const n=linhaTempo().length;return n+' registros'+(regs.length>=5000?' (limite de 5.000, reduza o período)':'')})()}</span></header>
+  ${(()=>{const lt=linhaTempo();return lt.length?`<div class="tw"><table><tr><th>Data e hora</th><th>Pessoa</th><th>O que fez</th></tr>${lt.slice(0,800).map(r=>`<tr><td style="white-space:nowrap">${fdh(r.ts)}</td><td>${esc(r.pessoa)}</td><td style="white-space:normal">${esc(r.txt)}</td></tr>`).join('')}</table></div>${lt.length>800?'<p class="small muted">Mostrando os 800 mais recentes. A planilha e o relatório trazem todos.</p>':''}`:'<p class="empty">Nada registrado com esses filtros.</p>'})()}</section>`;
 }
 function baixarCsvAtividades(){
-  const regs=logFiltrado(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const csv='﻿'+['Data e hora;Pessoa;E-mail;O que fez'].concat(regs.map(r=>[fdh(r.ts),pessoaLog(r),r.email,descLog(r)].map(q).join(';'))).join('\r\n');
+  const regs=linhaTempo().slice().reverse(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const csv='\ufeff'+['Data e hora;Pessoa;E-mail;O que fez'].concat(regs.map(r=>[fdh(r.ts),r.pessoa,r.email,r.txt].map(q).join(';'))).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='atividades-setor-acordos-'+periodo().join('_a_')+'.csv';a.click();
 }
 function imprimirRelatorio(){
-  const per=periodo(),regs=logFiltrado(),rs=resumoLog(S.f.atvM?regs:S.log),quem=S.f.atvM?nomeM(S.f.atvM):'Toda a equipe';
+  const per=periodo(),regs=linhaTempo().slice().reverse(),dia=diarioPeriodo(),rs=resumoLog(S.f.atvM?logFiltrado():S.log),quem=S.f.atvM?nomeM(S.f.atvM):'Toda a equipe';
   const w=window.open('','_blank');if(!w){toast('Libere pop-ups para abrir o relatório.');return}
   w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de atividades</title><style>body{font:12px/1.45 Arial,sans-serif;color:#111;margin:28px}h1{font-size:18px;margin:0}h2{font-size:14px;margin:20px 0 6px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:4px 6px;text-align:left;vertical-align:top}th{background:#f2f2f2}td.n,th.n{text-align:right}.m{color:#555}</style></head><body>
   <h1>Setor de Acordos D'Freire · Relatório de atividades</h1><div class="m">${esc(quem)} · ${fd(per[0])} a ${fd(per[1])} · gerado em ${fdh(Date.now())}</div>
-  <h2>Resumo por pessoa</h2><table><tr><th>Pessoa</th><th class="n">Acessos</th><th>Último acesso</th><th class="n">Clientes</th><th class="n">Processos</th><th class="n">Atendimentos</th><th class="n">Contatos</th><th class="n">Tarefas criadas</th><th class="n">Tarefas concluídas</th><th class="n">Acordos</th><th class="n">Total</th></tr>
-  ${rs.map(o=>`<tr><td>${esc(o.nome)}</td><td class="n">${o.acessos}</td><td>${o.ult?fdh(o.ult):'-'}</td><td class="n">${o.cli}</td><td class="n">${o.proc}</td><td class="n">${o.at}</td><td class="n">${o.ct}</td><td class="n">${o.tc}</td><td class="n">${o.tf}</td><td class="n">${o.ac}</td><td class="n">${o.total}</td></tr>`).join('')}</table>
-  <h2>Atividades em ordem cronológica</h2><table><tr><th style="width:120px">Data e hora</th><th style="width:160px">Pessoa</th><th>O que fez</th></tr>${regs.slice().reverse().map(r=>`<tr><td>${fdh(r.ts)}</td><td>${esc(pessoaLog(r))}</td><td>${esc(descLog(r))}</td></tr>`).join('')}</table>
+  <h2>Resumo por pessoa</h2><table><tr><th>Pessoa</th><th class="n">Acessos</th><th>Último acesso</th><th class="n">Clientes</th><th class="n">Processos</th><th class="n">Atendimentos</th><th class="n">Contatos</th><th class="n">Tarefas criadas</th><th class="n">Tarefas concluídas</th><th class="n">Acordos</th><th class="n">Meu dia</th><th class="n">Total</th></tr>
+  ${rs.map(o=>`<tr><td>${esc(o.nome)}</td><td class="n">${o.acessos}</td><td>${o.ult?fdh(o.ult):'-'}</td><td class="n">${o.cli}</td><td class="n">${o.proc}</td><td class="n">${o.at}</td><td class="n">${o.ct}</td><td class="n">${o.tc}</td><td class="n">${o.tf}</td><td class="n">${o.ac}</td><td class="n">${o.dn||0} · ${min2h(o.dmin||0)}</td><td class="n">${o.total}</td></tr>`).join('')}</table>
+  <h2>Atividades lançadas no Meu dia</h2>${dia.length?`<table><tr><th>Data</th><th>Início</th><th>Fim</th><th class="n">Duração</th><th>Pessoa</th><th>Tipo</th><th>Cliente / processo</th><th>O que foi feito</th></tr>${dia.map(i=>`<tr><td>${fd(i.data)}</td><td>${esc(i.ini)}</td><td>${esc(i.fim)}</td><td class="n">${min2h(i.min)}</td><td>${esc(nomeM(i.membroId))}</td><td>${esc(i.tipo)}</td><td>${esc(i.ref||'')}</td><td>${esc(i.desc)}</td></tr>`).join('')}</table>`:'<p>Nenhuma atividade lançada no período.</p>'}
+  <h2>Atividades em ordem cronológica</h2><table><tr><th style="width:120px">Data e hora</th><th style="width:160px">Pessoa</th><th>O que fez</th></tr>${regs.map(r=>`<tr><td>${fdh(r.ts)}</td><td>${esc(r.pessoa)}</td><td>${esc(r.txt)}</td></tr>`).join('')}</table>
   <script>setTimeout(()=>print(),400)<\/script></body></html>`);w.document.close();
 }
 
@@ -1305,7 +1318,7 @@ function vDiario(){
     <div class="tile"><div class="k">Contatos registrados</div><div class="v">${cts.length}</div><div class="s">entram no relatório automaticamente</div></div></div>
   ${proprio?`<section class="card"><header><h2>Nova atividade</h2></header>
   <div class="form" id="frmAt"><label for="atIni">Início<input id="atIni" type="time" value="${ult||'08:00'}"></label><label for="atFim">Fim<input id="atFim" type="time" value="${agora>(ult||'08:00')?agora:''}"></label>
-    <label for="atTipo">Tipo<select id="atTipo">${TIPOS_AT.map(t=>`<option>${t}</option>`).join('')}</select></label><label for="atRef">Cliente ou processo<input id="atRef" placeholder="Opcional"></label>
+    <label for="atTipo">Tipo<select id="atTipo">${TIPOS_AT.map(t=>`<option>${t}</option>`).join('')}</select></label><label for="atRef">Cliente ou processo<input id="atRef" list="dlRef" placeholder="Comece a digitar o nome"><datalist id="dlRef">${S.clientes.map(c=>`<option value="${esc(c.nome)}">`).join('')}${S.processos.map(p=>`<option value="${esc(p.numero+' · '+nomeCli(p.clienteId))}">`).join('')}</datalist></label>
     <label class="full" for="atDesc">O que foi feito<input id="atDesc" placeholder="Ex.: liguei para o preposto do Banco do Brasil e enviei a 1ª proposta"></label></div>
   <div class="row" style="justify-content:flex-end"><button class="btn p" id="btnAddAt">Registrar atividade</button></div></section>`:''}
   <section class="card"><header><h2>${fd(d)}</h2></header>
