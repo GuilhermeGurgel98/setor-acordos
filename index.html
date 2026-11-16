@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setor de Acordos D'Freire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap" rel="stylesheet">
+<style>
+/* Plano: ferramenta de trabalho do setor. Barra lateral de navegação, área principal em grade de cartões e tabelas.
+   Tinta grafite com dourado D'Freire como acento; cores semânticas só para estado (prazo, alçada, atraso). */
+:root{
+  --bg:#f5f4f1; --surface:#ffffff; --ink:#1d1f24; --muted:#6b6e76; --line:#e2e0da;
+  --accent:#a8842c; --accent-ink:#ffffff; --accent-soft:#f3ecd9;
+  --ok:#2f7d4f; --ok-soft:#e3f1e8; --warn:#a46a10; --warn-soft:#fbefd9; --bad:#b23a32; --bad-soft:#f8e2df; --info:#2f5f8f; --info-soft:#e2ecf6;
+  --f-display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --r:8px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15161a; --surface:#1e2026; --ink:#eceae4; --muted:#9a9ca4; --line:#30323a;
+    --accent:#d2ad55; --accent-ink:#17181b; --accent-soft:#3a3222;
+    --ok:#6cc08d; --ok-soft:#1f3328; --warn:#e2a54a; --warn-soft:#3a2d17; --bad:#ef7d74; --bad-soft:#3d2120; --info:#7fb0e0; --info-soft:#1d2b3a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15161a; --surface:#1e2026; --ink:#eceae4; --muted:#9a9ca4; --line:#30323a;
+  --accent:#d2ad55; --accent-ink:#17181b; --accent-soft:#3a3222;
+  --ok:#6cc08d; --ok-soft:#1f3328; --warn:#e2a54a; --warn-soft:#3a2d17; --bad:#ef7d74; --bad-soft:#3d2120; --info:#7fb0e0; --info-soft:#1d2b3a;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-weight:650;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:1.6rem} h2{font-size:1.25rem} h3{font-size:1.02rem}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;flex-direction:column;gap:2px;padding:0 6px}
+.brand b{font-family:var(--f-display);font-size:1.15rem}
+.brand span{color:var(--muted);font-size:.82rem}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;text-decoration:none;color:var(--ink)}
+.nav a:hover{background:var(--bg)}
+.nav a.on{background:var(--accent-soft);font-weight:600}
+.nav .ni{display:flex;align-items:center;gap:10px}
+.nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.nav a.on svg{opacity:1;stroke:var(--accent)}
+.nav .badge.soft{background:var(--accent-soft);color:var(--ink)}
+.nav .badge{background:var(--bad);color:#fff;border-radius:10px;font-size:.72rem;padding:0 7px;font-weight:600}
+.nav .sep{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 10px 4px}
+.who{margin-top:auto;border-top:1px solid var(--line);padding:12px 6px 0;font-size:.85rem;display:flex;flex-direction:column;gap:6px}
+.who select{width:100%}
+
+main{padding:24px clamp(16px,3vw,36px) 60px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.top p{margin:4px 0 0;color:var(--muted);max-width:65ch}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.tile .k{font-size:.78rem;color:var(--muted)}
+.tile .v{font-size:1.45rem;font-weight:600;margin-top:2px}
+.tile .s{font-size:.78rem;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card > header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.muted{color:var(--muted)} .small{font-size:.84rem}
+.empty{color:var(--muted);font-size:.9rem;padding:10px 0}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.p{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.s{padding:3px 8px;font-size:.82rem}
+.btn.d{color:var(--bad)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+.pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.76rem;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.info{background:var(--info-soft);color:var(--info)}
+.pill.n{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:.78rem;border-bottom:1px solid var(--line);padding:6px 8px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top}
+td b{white-space:nowrap}td .row span{white-space:nowrap}
+td.n,th.n{text-align:right}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--bg)}
+
+.list{display:flex;flex-direction:column}
+.item{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .b{flex:1;min-width:0}
+.item .t{font-weight:500}
+.stripe{width:4px;align-self:stretch;border-radius:2px;background:var(--line)}
+.stripe.bad{background:var(--bad)} .stripe.warn{background:var(--warn)} .stripe.ok{background:var(--ok)} .stripe.info{background:var(--info)}
+
+.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:10px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.col h3{font-family:var(--f-body);font-size:.84rem;font-weight:600;display:flex;justify-content:space-between;padding:2px 4px}
+.kc{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;cursor:pointer;font-size:.86rem}
+.kc:hover{border-color:var(--accent)}
+.kc.late{border-left-color:var(--bad)} .kc.mid{border-left-color:var(--warn)} .kc.fresh{border-left-color:var(--ok)}
+.kc .t{font-weight:600}
+.kc .mv{display:flex;justify-content:space-between;gap:4px;margin-top:4px}
+
+.bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.bar.ok i{background:var(--ok)}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:8px 12px;border-bottom:2px solid transparent;cursor:pointer;color:var(--muted)}
+.tabs button.on{border-color:var(--accent);color:var(--ink);font-weight:600}
+
+.note{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--surface);border-radius:6px;padding:12px 14px;font-size:.9rem}
+.note.bad{border-left-color:var(--bad)} .note.ok{border-left-color:var(--ok)}
+.note ul{margin:6px 0 0;padding-left:18px}
+
+.ovl{position:fixed;inset:0;background:rgba(10,10,12,.45);display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;z-index:50;overflow:auto}
+.modal{background:var(--surface);border-radius:10px;border:1px solid var(--line);width:min(720px,100%);padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal header{display:flex;justify-content:space-between;align-items:center}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+.form .full{grid-column:1/-1}
+.form label{display:flex;flex-direction:column;gap:3px;font-size:.8rem;color:var(--muted)}
+.form label.ck{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:.88rem}
+.form input:not([type=checkbox]),.form select,.form textarea{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:7px 9px;width:100%;color:var(--ink);font-size:.92rem}
+.form textarea{min-height:64px;resize:vertical}
+.form .sec{grid-column:1/-1;font-weight:600;font-size:.82rem;border-top:1px solid var(--line);padding-top:10px;color:var(--ink)}
+.calc{background:var(--bg);border-radius:6px;padding:10px 12px;font-size:.88rem;grid-column:1/-1}
+.modal.wide{width:min(1180px,100%)}
+.ficha{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+.fcol{display:flex;flex-direction:column;gap:14px;min-width:0}
+.guia{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.guia .ck{display:flex;gap:8px;align-items:flex-start;font-size:.88rem}
+.qlist{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.q{display:flex;flex-direction:column;gap:3px;font-size:.88rem}
+.q input{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 9px;color:var(--ink)}
+.analise{font-size:.9rem;max-height:52vh;overflow:auto}
+.analise h3{font-family:var(--f-body);font-size:.9rem;margin:12px 0 4px;color:var(--accent)}
+.analise p{margin:4px 0}.analise ul{margin:4px 0;padding-left:18px}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.fc{all:unset;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.fc:hover{border-color:var(--accent)}.fc:focus-visible{outline:2px solid var(--accent)}
+.clip{color:var(--ink);opacity:.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty-big{text-align:center;padding:40px 10px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r)}
+.card .empty-big{border:0;padding:24px}
+.btn.wa{border-color:#25a35a;color:#1f8a4c}
+a.btn{text-decoration:none;display:inline-block}
+@media (max-width:900px){.ficha{grid-template-columns:1fr}}
+.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tl>div{background:var(--bg);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column}
+.tl .k{font-size:.74rem;color:var(--muted)}.tl .s{font-size:.76rem;color:var(--muted)}
+.upd{display:flex;flex-direction:column;gap:6px;margin:6px 0 4px}
+.upd textarea{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:8px;min-height:60px;color:var(--ink);resize:vertical}
+.upd .btn{align-self:flex-end}
+.mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.mini div{background:var(--bg);border-radius:6px;padding:6px 2px;display:flex;flex-direction:column}
+.mini b{font-size:1.2rem}.mini span{font-size:.7rem;color:var(--muted)}
+.pc .small>div{padding:2px 0}
+.pre{white-space:pre-wrap;font:inherit;font-size:.88rem;background:var(--bg);border-radius:6px;padding:12px;margin:0}
+.nichos{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+.nicho .fato{background:var(--accent-soft);border-radius:6px;padding:10px 12px;font-size:.9rem}.nicho .fato p{margin:4px 0 0}
+.passos{margin:4px 0 0;padding-left:20px;font-size:.88rem;display:flex;flex-direction:column;gap:3px}
+.nicho ul{margin:4px 0 0;padding-left:18px}.fontes a{color:var(--muted)}
+@media (max-width:480px){.nichos{grid-template-columns:1fr}}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:6px;z-index:60;font-size:.9rem}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filters select,.filters input{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 8px}
+.banner{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:.88rem}
+svg text{fill:var(--muted);font-size:10px;font-family:var(--f-body)}
+
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:column}
+  .nav{flex-direction:row;flex-wrap:wrap}
+  .nav .sep{display:none}
+}
+
+/* tela de entrada (login próprio, fora do Claude) */
+.auth{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.auth .box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:28px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px}
+.auth h1{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.auth p{margin:0;color:var(--muted);font-size:.9rem}
+.auth label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+.auth input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.auth .msg{font-size:.85rem;min-height:1.2em}
+.auth .msg.err{color:var(--bad)} .auth .msg.ok{color:var(--ok)}
+.auth a{color:var(--accent);font-size:.85rem;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><b>Setor de Acordos</b><span>D'Freire · acordos de clientes com outras partes</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="who" id="who"></div>
+  </aside>
+  <main id="main"><p class="muted">Carregando dados do setor…</p></main>
+</div>
+<div id="layer"></div>
+<div id="auth"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+/* ===================== utilidades ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=v=>(+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const brlK=v=>{v=+v||0;return v>=1e6?'R$ '+(v/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mi':v>=1e4?'R$ '+(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0})+' mil':brl(v)};
+const pct=v=>isFinite(v)?(v*100).toLocaleString('pt-BR',{maximumFractionDigits:0})+'%':'–';
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const hoje=()=>iso(Date.now());
+const fd=s=>{if(!s)return '–';const [y,m,d]=String(s).slice(0,10).split('-');return d+'/'+m+'/'+y.slice(2)};
+const dias=(a,b)=>Math.round((new Date(String(b).slice(0,10))-new Date(String(a).slice(0,10)))/864e5);
+const addDias=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function toast(m){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+/* ===================== domínio ===================== */
+const ETAPAS=[
+  ['mapeado','Mapeado'],['proposta','Proposta pronta'],['autorizado','Cliente autorizou'],['negociacao','Em negociação'],
+  ['aceito','Aceito'],['termo','Termo assinado'],['homologado','Homologado'],['cumprimento','Em cumprimento'],['cumprido','Cumprido']];
+const ETAPA_IDX=Object.fromEntries(ETAPAS.map((e,i)=>[e[0],i]));
+const FECHADO_MIN=ETAPA_IDX.aceito;
+const CONTRAPARTES=['Banco','Fazenda Pública','INSS / União','Empresa','Empregador','Pessoa física','Seguradora','Construtora'];
+const CANAIS=['WhatsApp','Telefone','Presencial','E-mail','Audiência'];
+const INTERLOCUTOR=['Cliente','Contraparte','Advogado da contraparte','Preposto','Procuradoria'];
+const RESULTADOS=['Sem resposta','Recado deixado','Conversa sem avanço','Proposta enviada','Contraproposta recebida','Acordo aceito','Proposta recusada','Cliente orientado','Autorização do cliente obtida','Documentos solicitados'];
+const NAO_EFETIVO=['Sem resposta','Recado deixado'];
+const PAPEIS=[['integrante','Integrante'],['coordenador','Coordenador'],['diretoria','Diretoria']];
+const RANK={integrante:1,coordenador:2,diretoria:3};
+const FRENTES=['Acordos em processos','Atendimento a clientes','Triagem e captação','Controle de cumprimento'];
+const POPS={
+  'POP-01':['Registro de contato',['Cliente ou processo identificado','Canal e interlocutor anotados','Resumo em uma linha','Próximo passo com data']],
+  'POP-02':['Negociação de acordo',['Valor de referência informado pelo advogado do processo','Escada de propostas definida (1ª, 2ª, 3ª)','Faixa de alçada conferida','Procuração com poderes para transigir e dar quitação','Autorização escrita do cliente salva','Contato com a contraparte pelo roteiro do tipo dela','Termo minutado com honorários de sucumbência tratados','Petição de homologação protocolada']],
+  'POP-03':['Audiência de conciliação',['Pauta da semana conferida','Cliente contatado 48 h antes','Alçada e proposta inicial por escrito','Resultado lançado no mesmo dia']],
+  'POP-04':['Controle de cumprimento do acordo',['Parcelas e vencimentos lançados','Conferência do depósito na data','Aviso ao cliente sobre cada pagamento','Petição de descumprimento se houver atraso']],
+  'POP-05':['Atendimento ao cliente',['Identidade conferida antes de informar andamento','Alerta do golpe do falso advogado enviado','Resposta no prazo da frente','Dúvida técnica encaminhada ao advogado']],
+  'POP-06':['Triagem de novo cliente',['Formulário de primeiro atendimento','Checagem de conflito de interesse','Encaminhado ao advogado da área em 1 dia útil','Proposta e contrato de honorários','Procuração e cadastro']]
+};
+const LEAD_STATUS=['Novo','Em triagem','Com advogado','Proposta enviada','Contratou','Não contratou'];
+const LEAD_ORIGEM=['Procurou pelo WhatsApp','Procurou por telefone','Veio ao escritório','Indicação de cliente','Instagram / site','Ex-cliente que voltou','Cliente da carteira (novo caso)','Parceiro / outro advogado'];
+const AREAS=['Defesa em execução bancária','Revisional / consignado','Busca e apreensão','PASEP / Plano Collor','Servidor público','Trabalhista','Família','Previdenciário','Criminal','Cível em geral'];
+
+/* ===================== estado ===================== */
+const S={db:null,user:null,uid:null,local:false,canWrite:true,isEditor:false,
+  equipe:[],vinculos:{},contatos:[],casos:[],tarefas:[],leads:[],radar:[],pauta:[],clientes:[],msgs:[],atividades:[],conferencia:[],nichos:[],plano:[],isOwner:false,sample:null,config:{faixa1:85,faixa2:65,teto:0},
+  me:null,loaded:{},route:'hoje',f:{per:'30',membro:'',cp:'',resp:'',status:'abertas',capt:'nichos',ac:'funil',busca:'',at:'abertos',dst:'abertas',dia:'',diaM:''}};
+const COLS=['equipe','vinculos','contatos','casos','tarefas','leads','radar','pauta','clientes','msgs','atividades','conferencia','nichos','plano'];
+
+/* camada de dados: banco compartilhado do artifact, ou memória local quando aberto fora do claude.ai */
+const API={
+  sub(col,cb){
+    if(S.local){LOCAL.subs[col]=cb;cb(LOCAL.data[col]||[]);return}
+    S.db.collection(col).onSnapshot(s=>{cb(s.docs.map(d=>({id:d.id,...d.data()})));S.loaded[col]=true;},e=>{S.loaded[col]=true;console.warn(col,e);bannerErr(e)});
+  },
+  subDoc(path,cb){
+    if(S.local){cb(LOCAL.cfg);return}
+    S.db.doc(path).onSnapshot(s=>cb(s.exists?s.data():null),e=>console.warn(path,e));
+  },
+  async set(col,id,data){
+    if(S.local){const a=LOCAL.data[col]=(LOCAL.data[col]||[]).filter(x=>x.id!==id);a.push({id,...data});LOCAL.subs[col]&&LOCAL.subs[col]([...a]);return}
+    return S.db.collection(col).doc(id).set(data);
+  },
+  async upd(col,id,data){
+    if(S.local){const a=LOCAL.data[col]||[];const i=a.findIndex(x=>x.id===id);if(i>=0)a[i]={...a[i],...data};LOCAL.subs[col]&&LOCAL.subs[col]([...a]);return}
+    return S.db.collection(col).doc(id).update(data);
+  },
+  async del(col,id){
+    if(S.local){LOCAL.data[col]=(LOCAL.data[col]||[]).filter(x=>x.id!==id);LOCAL.subs[col]&&LOCAL.subs[col]([...LOCAL.data[col]]);return}
+    return S.db.collection(col).doc(id).delete();
+  },
+  async setCfg(data){
+    if(S.local){LOCAL.cfg={...LOCAL.cfg,...data};S.config=LOCAL.cfg;render();return}
+    return S.db.doc('config/geral').set({...S.config,...data});
+  }
+};
+const LOCAL={data:{},subs:{},cfg:{faixa1:85,faixa2:65,teto:0}};
+function bannerErr(e){if(e&&e.code==='invalid_argument'){S.canWrite=false;render()}}
+async function salvar(fn,ok){
+  if(!S.canWrite){toast('Seu acesso é só de leitura. Peça ao administrador acesso de Colaborador.');return false}
+  try{await fn();ok&&toast(ok);return true}catch(e){
+    console.warn(e);
+    if(e&&e.code==='invalid_argument'){toast('Sem permissão para gravar aqui. Peça ao administrador.');}
+    else if(e&&e.code==='quota_exceeded'){toast('O banco do setor atingiu o limite. Avise o administrador.');}
+    else toast('Não foi possível salvar. Tente de novo em alguns segundos.');
+    return false}
+}
+
+/* ===================== regras de negócio ===================== */
+const membro=id=>S.equipe.find(m=>m.id===id);
+const nomeM=id=>membro(id)?.nome||'Sem responsável';
+const ativos=()=>S.equipe.filter(m=>m.ativo!==false).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+function meuNivel(){const m=S.me&&membro(S.me);if(m)return m.papel||'integrante';return S.isEditor?'diretoria':'integrante'}
+function vinculadoA(){return S.uid&&S.vinculos[S.uid]?S.vinculos[S.uid].membroId:null}
+const isGestor=()=>{if(S.local||S.isOwner)return true;const v=vinculadoA(),m=v&&membro(v);if(m)return RANK[m.papel||'integrante']>=2;return S.isEditor};
+const casoAberto=c=>!c.recusadoEm&&c.etapa!=='cumprido'&&!c.arquivado;
+const valorDisc=c=>+(c.valorAcordado||c.valorEmDiscussao||0);
+function alcada(c){
+  const ref=+c.valorReferencia, v=valorDisc(c); if(!ref||!v)return null;
+  const f1=+S.config.faixa1||85, f2=+S.config.faixa2||65, teto=+S.config.teto||0;
+  let nivel,leitura;
+  if(c.polo==='devedor'){const exc=(v/ref-1)*100;leitura=(exc>=0?'+':'')+exc.toFixed(0)+'% sobre a referência';
+    nivel=exc<=100-f1?'integrante':exc<=100-f2?'coordenador':'diretoria';}
+  else{const p=v/ref*100;leitura=p.toFixed(0)+'% da referência';nivel=p>=f1?'integrante':p>=f2?'coordenador':'diretoria';}
+  if(teto&&v>teto)nivel='diretoria';
+  const ap=c.aprovacao; const aprovado=nivel==='integrante'||(ap&&ap.status==='aprovada'&&+ap.valor===v&&RANK[ap.nivel]>=RANK[nivel]);
+  return {nivel,leitura,aprovado,v,ref};
+}
+const NIVEL_TXT={integrante:'Integrante decide',coordenador:'Precisa do coordenador',diretoria:'Precisa da diretoria'};
+function pillAlcada(c){const a=alcada(c);if(!a)return '<span class="pill n">Sem valor</span>';
+  if(a.aprovado)return `<span class="pill ok">${a.nivel==='integrante'?'Dentro da alçada':'Aprovado'}</span>`;
+  if(c.aprovacao&&c.aprovacao.status==='pendente'&&+c.aprovacao.valor===a.v)return '<span class="pill warn">Aguardando aprovação</span>';
+  if(c.aprovacao&&c.aprovacao.status==='recusada'&&+c.aprovacao.valor===a.v)return '<span class="pill bad">Aprovação recusada</span>';
+  return `<span class="pill ${a.nivel==='diretoria'?'bad':'warn'}">${NIVEL_TXT[a.nivel]}</span>`}
+const ultimoMov=c=>[c.etapaDesde,c.ultimoContato,c.criadoEm].filter(Boolean).sort().pop()||hoje();
+function parado(c){return dias(ultimoMov(c),hoje())}
+
+/* ===================== período ===================== */
+function periodo(){
+  const p=S.f.per,h=hoje();
+  if(p==='mes')return [h.slice(0,8)+'01',h];
+  if(p==='mesant'){const d=new Date(h.slice(0,8)+'01T12:00:00');d.setDate(0);const fim=iso(d);return [fim.slice(0,8)+'01',fim]}
+  return [addDias(h,-(+p-1)),h];
+}
+const noPer=(d,[a,b])=>d&&String(d).slice(0,10)>=a&&String(d).slice(0,10)<=b;
+
+/* ===================== métricas (painel) ===================== */
+function metricas(mid,per){
+  const fc=x=>!mid||x===mid;
+  const cts=S.contatos.filter(c=>fc(c.membroId)&&noPer(c.data,per));
+  const ef=cts.filter(c=>!NAO_EFETIVO.includes(c.resultado));
+  const prop=cts.filter(c=>c.resultado==='Proposta enviada');
+  const fech=S.casos.filter(c=>fc(c.responsavel)&&noPer(c.fechadoEm,per));
+  const rec=S.casos.filter(c=>fc(c.responsavel)&&noPer(c.recusadoEm,per));
+  const valor=fech.reduce((s,c)=>s+(+c.valorAcordado||0),0);
+  const tempos=fech.map(c=>dias(c.primeiroContatoEm||c.criadoEm,c.fechadoEm)).filter(x=>x>=0);
+  const tf=S.tarefas.filter(t=>fc(t.responsavel));
+  const concl=tf.filter(t=>t.status==='concluida'&&noPer(t.concluidaEm,per));
+  const noPrazo=concl.filter(t=>!t.prazo||String(t.concluidaEm).slice(0,10)<=t.prazo);
+  const atras=tf.filter(t=>t.status!=='concluida'&&t.prazo&&t.prazo<hoje());
+  const abertos=S.casos.filter(c=>fc(c.responsavel)&&casoAberto(c));
+  const parados=abertos.filter(c=>parado(c)>7);
+  const ld=S.leads.filter(l=>fc(l.responsavel)&&noPer(l.criadoEm,per));
+  const conv=S.leads.filter(l=>fc(l.responsavel)&&noPer(l.contratouEm,per));
+  return {cts:cts.length,ef:ef.length,efPct:cts.length?ef.length/cts.length:NaN,prop:prop.length,fech:fech.length,rec:rec.length,
+    taxa:(fech.length+rec.length)?fech.length/(fech.length+rec.length):NaN,valor,tempo:tempos.length?tempos.reduce((a,b)=>a+b,0)/tempos.length:NaN,
+    concl:concl.length,noPrazo:concl.length?noPrazo.length/concl.length:NaN,atras:atras.length,abertos:abertos.length,parados:parados.length,
+    leads:ld.length,conv:conv.length,diasCts:cts.map(c=>c.data)};
+}
+
+/* ===================== navegação ===================== */
+const IC={
+  hoje:'<path d="M4 6h16M4 12h10M4 18h7"/>',
+  atendimento:'<path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/>',
+  clientes:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5"/><path d="M16 5.5a3 3 0 0 1 0 5.6M18 14.8c1.6.8 2.6 2.5 3 5.2"/>',
+  acordos:'<path d="M3 12l4-4 4 3 4-4 6 6"/><path d="M3 18h18"/>',
+  tarefas:'<path d="M5 5h14v14H5z"/><path d="M8.5 12l2.3 2.3L16 9"/>',
+  painel:'<path d="M5 20V11M10 20V5M15 20v-7M20 20v-4"/>',
+  captacao:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  diario:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>',
+  conferencia:'<path d="M4 5h16v11H8l-4 4z"/><path d="M9 10.5l2 2 4-4"/>',
+  delegar:'<path d="M4 7h9M4 12h6M4 17h9"/><path d="M15 9l4 3-4 3"/>',
+  equipe:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'};
+const ROTAS=[
+  ['hoje','Hoje'],['diario','Meu dia'],['atendimento','Atendimento'],['clientes','Clientes'],['acordos','Acordos'],['tarefas','Tarefas'],['captacao','Captação'],
+  ['_sep','Gestão'],['delegar','Delegar tarefas'],['conferencia','Conferência'],['painel','Produtividade'],['equipe','Equipe e alçadas']];
+function rotaAtual(){const h=location.hash.slice(1);if(h==='aprovacoes'){S.f.ac='aprov';return 'acordos'}return ROTAS.some(r=>r[0]===h)?h:'hoje'}
+window.addEventListener('hashchange',()=>{S.route=rotaAtual();render()});
+
+function renderNav(){
+  const pend=S.casos.filter(c=>c.aprovacao&&c.aprovacao.status==='pendente'&&RANK[meuNivel()]>=RANK[c.aprovacao.nivel]).length;
+  const atras=S.tarefas.filter(t=>t.status!=='concluida'&&t.prazo&&t.prazo<hoje()&&(!S.me||t.responsavel===S.me)).length;
+  const novos=S.leads.filter(l=>['Novo','Em triagem'].includes(l.status)).length;
+  $('#nav').innerHTML=ROTAS.map(([k,l])=>{
+    if(k==='_sep')return isGestor()||S.isEditor?`<div class="sep">${l}</div>`:'';
+    if(['painel','equipe','delegar','conferencia'].includes(k)&&!isGestor())return k==='painel'?`<a href="#painel" class="${S.route===k?'on':''}"><span class="ni"><svg viewBox="0 0 24 24">${IC.painel}</svg>Meu desempenho</span></a>`:'';
+    let b='';if(k==='acordos'&&pend)b=`<span class="badge">${pend}</span>`;if(k==='hoje'&&atras)b=`<span class="badge">${atras}</span>`;if(k==='atendimento'&&novos)b=`<span class="badge soft">${novos}</span>`;
+    return `<a href="#${k}" class="${S.route===k?'on':''}"><span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>${l}</span>${b}</a>`}).join('');
+  const travado=!S.isOwner&&!S.local&&!!vinculadoA();
+  const op=ativos().filter(m=>S.isOwner||S.local||m.papel==='integrante'||m.id===S.me||(S.isEditor&&!travado)).map(m=>`<option value="${m.id}" ${S.me===m.id?'selected':''}>${esc(m.nome)}</option>`).join('');
+  $('#who').innerHTML=`<button class="btn p" id="btnNovoAt">Novo atendimento</button><button class="btn" id="btnContato">Registrar contato</button>
+    <label class="small muted" for="meSel" style="margin-top:6px">Você é</label>
+    <select id="meSel" class="btn" ${travado?'disabled title="Seu nome fica vinculado ao seu login. Para trocar, fale com a coordenação."':''}><option value="">Escolha seu nome</option>${op}</select>
+    <span class="small muted">${S.local?'Demonstração local, nada é salvo':isGestor()?'Acesso de gestão':'Acesso de integrante'}</span>${S.email?`<span class="small muted">${esc(S.email)}</span><button class="btn s" id="btnSair">Sair</button>`:''}`;
+  const bs=$('#btnSair');if(bs)bs.onclick=sair;
+  $('#meSel').onchange=e=>escolherMe(e.target.value);
+  $('#btnContato').onclick=()=>formContato();
+  $('#btnNovoAt').onclick=()=>fichaAtendimento();
+}
+async function escolherMe(id){
+  S.me=id||null;try{localStorage.setItem('setor_me',S.me||'')}catch(e){}
+  if(S.uid&&id&&!S.local)await salvar(()=>API.set('vinculos',S.uid,{membroId:id,em:Date.now()}));
+  render();
+}
+
+/* ===================== modal/formulário genérico ===================== */
+function fecharModal(){$('#layer').innerHTML='';if(S.pendRender){S.pendRender=false;render()}}
+function abrirModal(html,onReady){
+  $('#layer').innerHTML=`<div class="ovl" id="ovl"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
+  $('#ovl').addEventListener('mousedown',e=>{if(e.target.id==='ovl')fecharModal()});
+  document.addEventListener('keydown',function k(e){if(e.key==='Escape'){fecharModal();document.removeEventListener('keydown',k)}});
+  onReady&&onReady($('#layer .modal'));
+}
+function campo(f,v){
+  const id='f_'+f.k, req=f.req?' required':'', full=f.full?' full':'';
+  if(f.type==='sec')return `<div class="sec">${esc(f.label)}</div>`;
+  if(f.type==='html')return `<div class="calc" id="${id}"></div>`;
+  if(f.type==='check')return `<label class="ck${full}"><input type="checkbox" id="${id}" ${v?'checked':''}> ${esc(f.label)}</label>`;
+  let inp;
+  if(f.type==='select'){const ops=(typeof f.options==='function'?f.options():f.options).map(o=>Array.isArray(o)?o:[o,o]);
+    inp=`<select id="${id}"${req}>${f.blank!==false?`<option value="">${esc(f.blank||'Selecione')}</option>`:''}${ops.map(([a,b])=>`<option value="${esc(a)}" ${String(v??'')===String(a)?'selected':''}>${esc(b)}</option>`).join('')}</select>`}
+  else if(f.type==='textarea')inp=`<textarea id="${id}"${req}>${esc(v??'')}</textarea>`;
+  else inp=`<input id="${id}" type="${f.type==='money'?'number':f.type||'text'}" ${f.type==='money'?'step="0.01" min="0"':''} value="${esc(v??'')}"${req} ${f.ph?`placeholder="${esc(f.ph)}"`:''}>`;
+  return `<label class="${full.trim()}" for="${id}">${esc(f.label)}${inp}</label>`;
+}
+function lerForm(fields,root){const o={};fields.forEach(f=>{if(['sec','html'].includes(f.type))return;const el=root.querySelector('#f_'+f.k);if(!el)return;
+  o[f.k]=f.type==='check'?el.checked:(f.type==='money'||f.type==='number')?(el.value===''?'':+el.value):el.value.trim()});return o}
+function abrirForm({titulo,fields,values={},botao='Salvar',onSubmit,onChange,extra='',apagar}){
+  abrirModal(`<header><h2>${esc(titulo)}</h2><button class="btn s" id="xFechar" aria-label="Fechar">Fechar</button></header>
+    <form class="form" id="frm">${fields.map(f=>campo(f,values[f.k])).join('')}</form>${extra}
+    <div class="row" style="justify-content:space-between">${apagar?'<button class="btn d" id="xApagar" type="button">Apagar</button>':'<span></span>'}
+    <div class="row"><button class="btn" id="xCanc" type="button">Cancelar</button><button class="btn p" id="xOk" type="button">${esc(botao)}</button></div></div>`,m=>{
+    const frm=m.querySelector('#frm');
+    m.querySelector('#xFechar').onclick=fecharModal;m.querySelector('#xCanc').onclick=fecharModal;
+    if(apagar)m.querySelector('#xApagar').onclick=async()=>{const b=m.querySelector('#xApagar');if(b.dataset.c){await apagar();fecharModal()}else{b.dataset.c=1;b.textContent='Clique de novo para apagar'}};
+    const ch=()=>onChange&&onChange(lerForm(fields,frm),m);frm.addEventListener('input',ch);frm.addEventListener('change',ch);ch();
+    m.querySelector('#xOk').onclick=async()=>{const v=lerForm(fields,frm);
+      const falta=fields.find(f=>f.req&&(v[f.k]===''||v[f.k]==null));if(falta){toast('Preencha: '+falta.label);frm.querySelector('#f_'+falta.k).focus();return}
+      const r=await onSubmit(v,m);if(r!==false)fecharModal()};
+    const first=frm.querySelector('input,select,textarea');first&&first.focus();
+  });
+}
+const opM=()=>ativos().map(m=>[m.id,m.nome]);
+const opCasos=()=>S.casos.filter(casoAberto).sort((a,b)=>(a.cliente||'').localeCompare(b.cliente||'')).map(c=>[c.id,`${c.cliente} · ${c.contraparte||c.tipoContraparte||''}${c.processo?' · '+c.processo:''}`]);
+
+/* ===================== registrar contato ===================== */
+function formContato(pre={}){
+  if(!S.me){toast('Escolha seu nome no canto esquerdo antes de registrar.');$('#meSel')?.focus();return}
+  const fields=[
+    {k:'casoId',label:'Acordo vinculado (opcional)',type:'select',options:opCasos,blank:'Nenhum, contato avulso',full:true},
+    {k:'cliente',label:'Cliente',ph:'Nome do cliente'},{k:'processo',label:'Processo',ph:'0000000-00.0000.0.00.0000'},
+    {k:'canal',label:'Canal',type:'select',options:CANAIS,req:true},{k:'interlocutor',label:'Falou com',type:'select',options:INTERLOCUTOR,req:true},
+    {k:'resultado',label:'Resultado',type:'select',options:RESULTADOS,req:true},{k:'valor',label:'Valor proposto ou oferecido (R$)',type:'money'},
+    {k:'resumo',label:'Resumo em uma linha',full:true,req:true},
+    {k:'proximoPasso',label:'Próximo passo'},{k:'proximaData',label:'Data do próximo passo',type:'date'},
+    {k:'data',label:'Data do contato',type:'date'}];
+  abrirForm({titulo:'Registrar contato (POP-01)',fields,values:{data:hoje(),proximaData:addDias(hoje(),2),...pre},botao:'Registrar',
+    onChange:(v,m)=>{if(v.casoId){const c=S.casos.find(x=>x.id===v.casoId);if(c){const a=m.querySelector('#f_cliente'),p=m.querySelector('#f_processo');if(!a.value)a.value=c.cliente||'';if(!p.value)p.value=c.processo||''}}},
+    onSubmit:async v=>{
+      const id=nid();const doc={...v,membroId:S.me,uid:S.uid||'',criadoEm:Date.now()};
+      const ok=await salvar(()=>API.set('contatos',id,doc),'Contato registrado');if(!ok)return false;
+      if(v.casoId){const c=S.casos.find(x=>x.id===v.casoId);if(c){const up={ultimoContato:v.data||hoje()};
+        if(!c.primeiroContatoEm&&v.interlocutor!=='Cliente')up.primeiroContatoEm=v.data||hoje();
+        if(v.valor&&['Proposta enviada','Contraproposta recebida','Acordo aceito'].includes(v.resultado))up.valorEmDiscussao=+v.valor;
+        if(v.resultado==='Autorização do cliente obtida')up.autorizacaoCliente=true;
+        if(v.proximaData)up.proximaData=v.proximaData;if(v.proximoPasso)up.proximoPasso=v.proximoPasso;
+        await salvar(()=>API.upd('casos',c.id,up))}}
+    }});
+}
+
+/* ===================== caso (acordo) ===================== */
+function formCaso(c={}){
+  const novo=!c.id;
+  const fields=[
+    {k:'clienteId',label:'Cliente cadastrado',type:'select',options:()=>S.clientes.slice().sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(x=>[x.id,x.nome]),blank:'Não cadastrado'},
+    {k:'cliente',label:'Nome do cliente',req:true},{k:'processo',label:'Número do processo'},
+    {k:'juizo',label:'Vara / comarca'},{k:'advogado',label:'Advogado do processo'},
+    {k:'contraparte',label:'Contraparte (nome)',ph:'Ex.: Banco do Brasil, Estado do Tocantins',req:true},
+    {k:'tipoContraparte',label:'Tipo de contraparte',type:'select',options:CONTRAPARTES,req:true},
+    {k:'polo',label:'Nosso cliente é',type:'select',options:[['credor','Credor / autor (recebe)'],['devedor','Devedor / réu (paga)']],blank:false},
+    {k:'responsavel',label:'Responsável no setor',type:'select',options:opM,req:true},
+    {k:'etapa',label:'Etapa',type:'select',options:ETAPAS,blank:false},{k:'audiencia',label:'Audiência de conciliação',type:'date'},
+    {k:'s1',type:'sec',label:'Valores e escada de propostas (POP-02)'},
+    {k:'valorReferencia',label:'Valor de referência (R$)',type:'money'},
+    {k:'p1',label:'1ª proposta (R$)',type:'money'},{k:'p2',label:'2ª proposta (R$)',type:'money'},{k:'p3',label:'3ª proposta, limite (R$)',type:'money'},
+    {k:'valorEmDiscussao',label:'Valor em discussão agora (R$)',type:'money'},{k:'valorAcordado',label:'Valor acordado (R$)',type:'money'},
+    {k:'calc',type:'html'},
+    {k:'s2',type:'sec',label:'Requisitos para aceitar'},
+    {k:'procuracaoPoderes',label:'Procuração com poderes para transigir e dar quitação (CPC, art. 105)',type:'check',full:true},
+    {k:'autorizacaoCliente',label:'Autorização escrita do cliente salva',type:'check',full:true},
+    {k:'s3',type:'sec',label:'Cumprimento do acordo'},
+    {k:'parcelas',label:'Nº de parcelas',type:'number'},{k:'primeiroVenc',label:'1º vencimento',type:'date'},
+    {k:'parcelasPagas',label:'Parcelas já pagas',type:'number'},
+    {k:'obs',label:'Observações',type:'textarea',full:true}];
+  const vals={polo:'credor',etapa:'mapeado',responsavel:S.me||'',...c};
+  abrirForm({titulo:novo?'Novo acordo no funil':'Acordo: '+(c.cliente||''),fields,values:vals,apagar:novo||!isGestor()?null:async()=>salvar(()=>API.del('casos',c.id),'Acordo apagado'),
+    extra:novo?'':`<div class="row"><button class="btn" id="xCt" type="button">Registrar contato deste acordo</button>${c.etapa&&!c.recusadoEm?'<button class="btn d" id="xRec" type="button">Encerrar sem acordo</button>':''}<button class="btn" id="xAp" type="button">Pedir aprovação de alçada</button></div>${histCaso(c)}`,
+    onChange:(v,m)=>{if(v.clienteId){const cl=S.clientes.find(x=>x.id===v.clienteId);const n=m.querySelector('#f_cliente');if(cl&&!n.value)n.value=cl.nome}const box=m.querySelector('#f_calc');const a=alcada({...c,...v});
+      box.innerHTML=a?`<b>Alçada:</b> ${a.leitura}. ${NIVEL_TXT[a.nivel]}. ${pillAlcada({...c,...v})}`:'Informe o valor de referência e o valor em discussão para calcular a alçada.';
+      const bt=m.querySelector('#xAp');if(bt)bt.disabled=!a||a.aprovado||(c.aprovacao&&c.aprovacao.status==='pendente'&&+c.aprovacao.valor===a.v)},
+    onSubmit:async v=>{
+      const doc={...c,...v};
+      if(novo){doc.criadoEm=hoje();doc.etapaDesde=hoje();doc.criadoPor=S.me||''}
+      if(!novo&&v.etapa!==c.etapa)doc.etapaDesde=hoje();
+      const err=validaEtapa(doc);if(err){toast(err);return false}
+      if(ETAPA_IDX[doc.etapa]>=FECHADO_MIN&&!doc.fechadoEm)doc.fechadoEm=hoje();
+      if(ETAPA_IDX[doc.etapa]<FECHADO_MIN&&doc.fechadoEm)delete doc.fechadoEm;
+      const id=doc.id||nid();delete doc.id;
+      return salvar(()=>API.set('casos',id,doc),novo?'Acordo criado':'Acordo atualizado');
+    }});
+  if(!novo){const m=$('#layer .modal');
+    m.querySelector('#xCt').onclick=()=>{fecharModal();formContato({casoId:c.id,cliente:c.cliente,processo:c.processo})};
+    const r=m.querySelector('#xRec');if(r)r.onclick=()=>encerrar(c);
+    m.querySelector('#xAp').onclick=()=>pedirAprovacao(c,lerForm(fields,m.querySelector('#frm')));}
+}
+function validaEtapa(c){
+  if(ETAPA_IDX[c.etapa]>=FECHADO_MIN){
+    if(!+c.valorAcordado)return 'Para marcar como aceito, informe o valor acordado.';
+    if(!c.procuracaoPoderes)return 'Confira a procuração com poderes para transigir antes de aceitar.';
+    if(!c.autorizacaoCliente)return 'Falta a autorização escrita do cliente.';
+    const a=alcada(c);if(a&&!a.aprovado)return 'O valor está fora da sua alçada. Peça aprovação antes de aceitar.';
+  }return null}
+function histCaso(c){
+  const cts=S.contatos.filter(x=>x.casoId===c.id).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||b.criadoEm-a.criadoEm).slice(0,8);
+  const ap=c.aprovacao?`<p class="small">Alçada: pedido de ${brl(c.aprovacao.valor)} por ${esc(nomeM(c.aprovacao.pedidoPor))} em ${fd(c.aprovacao.em)}. Situação: <b>${esc(c.aprovacao.status)}</b>${c.aprovacao.decididoPor?' por '+esc(nomeM(c.aprovacao.decididoPor)):''}${c.aprovacao.motivo?'. Motivo: '+esc(c.aprovacao.motivo):''}</p>`:'';
+  return `<div><h3>Histórico</h3>${ap}${cts.length?`<div class="list">${cts.map(x=>`<div class="item"><div class="b"><div class="small muted">${fd(x.data)} · ${esc(nomeM(x.membroId))} · ${esc(x.canal)} · ${esc(x.interlocutor)}</div><div>${esc(x.resultado)}${x.valor?' · '+brl(x.valor):''}: ${esc(x.resumo)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum contato registrado ainda.</p>'}</div>`}
+function pedirAprovacao(c,v){
+  const d={...c,...v};const a=alcada(d);if(!a){toast('Informe valor de referência e valor em discussão.');return}
+  abrirForm({titulo:'Pedir aprovação de alçada',botao:'Enviar pedido',fields:[{k:'just',label:'Justificativa (risco, tempo, chance de êxito)',type:'textarea',full:true,req:true}],
+    extra:`<p class="small">Valor: <b>${brl(a.v)}</b> (${a.leitura}). ${NIVEL_TXT[a.nivel]}.</p>`,
+    onSubmit:async f=>salvar(()=>API.upd('casos',c.id,{valorReferencia:d.valorReferencia,valorEmDiscussao:d.valorEmDiscussao,valorAcordado:d.valorAcordado,polo:d.polo,
+      aprovacao:{status:'pendente',nivel:a.nivel,valor:a.v,just:f.just,pedidoPor:S.me||'',em:hoje()}}),'Pedido enviado para aprovação')});
+}
+function encerrar(c){
+  abrirForm({titulo:'Encerrar sem acordo',botao:'Encerrar',fields:[{k:'ultimaOferta',label:'Última oferta da contraparte (R$)',type:'money'},{k:'motivo',label:'Motivo',type:'textarea',full:true,req:true},{k:'novaTentativa',label:'Nova tentativa em (opcional)',type:'date'}],
+    onSubmit:async f=>salvar(()=>API.upd('casos',c.id,{recusadoEm:hoje(),motivoRecusa:f.motivo,ultimaOferta:f.ultimaOferta,proximaData:f.novaTentativa||''}),'Negociação encerrada')});
+}
+async function moverEtapa(c,dir){
+  const i=ETAPA_IDX[c.etapa]??0,n=Math.max(0,Math.min(ETAPAS.length-1,i+dir));if(n===i)return;
+  const doc={...c,etapa:ETAPAS[n][0]};const err=validaEtapa(doc);if(err){toast(err);formCaso(c);return}
+  const up={etapa:doc.etapa,etapaDesde:hoje()};if(n>=FECHADO_MIN&&!c.fechadoEm)up.fechadoEm=hoje();
+  await salvar(()=>API.upd('casos',c.id,up));
+}
+
+/* ===================== tarefa ===================== */
+const prazoTs=t=>t.prazo?new Date(`${t.prazo}T${t.prazoHora||'18:00'}:00`).getTime():null;
+function dur(ms){if(ms==null||!isFinite(ms))return '–';const m=Math.max(0,Math.round(ms/6e4));if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;if(h<24)return h+' h'+(r?' '+r+' min':'');const d=Math.floor(h/24),hh=h%24;return d+' d'+(hh?' '+hh+' h':'')}
+const fdt=ts=>ts?new Date(ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
+const stTarefa=t=>t.status==='concluida'?'concluida':t.status==='andamento'?'andamento':'aberta';
+function pillTarefa(t){const s=stTarefa(t),p=prazoTs(t),now=Date.now();
+  if(s==='concluida'){const ok=!p||(t.concluidaTs||0)<=p;return `<span class="pill ${ok?'ok':'warn'}">Concluída${ok?'':' com atraso'}</span>`}
+  if(p&&p<now)return '<span class="pill bad">Atrasada</span>';
+  return s==='andamento'?'<span class="pill info">Em andamento</span>':'<span class="pill n">Não iniciada</span>'}
+const podeEditarTarefa=t=>isGestor()||t.criadoPor===S.me;
+const podeExecutar=t=>isGestor()||t.responsavel===S.me;
+function formTarefa(t={},pre={}){
+  const novo=!t.id;
+  const fields=[{k:'titulo',label:'Tarefa',full:true,req:true},{k:'responsavel',label:'Responsável',type:'select',options:opM,req:true},
+    {k:'prazo',label:'Prazo (dia)',type:'date',req:true},{k:'prazoHora',label:'Até que horas',type:'time'},
+    {k:'prioridade',label:'Prioridade',type:'select',options:['Alta','Normal','Baixa'],blank:false},
+    {k:'pop',label:'POP aplicável',type:'select',options:Object.entries(POPS).map(([k,v])=>[k,k+' '+v[0]]),blank:'Nenhum'},
+    {k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:'Instruções para quem vai fazer',type:'textarea',full:true}];
+  abrirForm({titulo:novo?'Delegar tarefa':'Editar tarefa',fields,values:{prioridade:'Normal',prazo:hoje(),prazoHora:'18:00',responsavel:S.me||'',...pre,...t},botao:novo?'Delegar':'Salvar',
+    apagar:novo||!podeEditarTarefa(t)?null:async()=>salvar(()=>API.del('tarefas',t.id),'Tarefa apagada'),
+    onSubmit:async v=>{const id=t.id||nid();const doc={...t,...v,status:t.status||'aberta',criadoEm:t.criadoEm||hoje(),criadoTs:t.criadoTs||Date.now(),criadoPor:t.criadoPor||S.me||'',atualizacoes:t.atualizacoes||[]};delete doc.id;
+      if(v.pop!==t.pop)doc.check={};return salvar(()=>API.set('tarefas',id,doc),novo?'Tarefa delegada':'Tarefa salva')}});
+}
+async function iniciar(t){await salvar(()=>API.upd('tarefas',t.id,{status:'andamento',iniciadaTs:Date.now(),iniciadaPor:S.me||''}),'Tarefa iniciada. O tempo está contando.')}
+function concluir(t){
+  const pop=POPS[t.pop];if(pop){const feitos=Object.values(t.check||{}).filter(Boolean).length;if(feitos<pop[1].length){toast('Marque todos os itens do checklist do '+t.pop+' antes de concluir.');abrirTarefa(t);return}}
+  abrirForm({titulo:'Concluir: '+t.titulo,botao:'Concluir tarefa',fields:[{k:'resultado',label:'O que foi feito e o resultado',type:'textarea',full:true,req:true}],
+    onSubmit:async v=>{const now=Date.now();const at=[...(t.atualizacoes||[]),{ts:now,por:S.me||'',texto:'Concluída: '+v.resultado}];
+      return salvar(()=>API.upd('tarefas',t.id,{status:'concluida',concluidaEm:hoje(),concluidaTs:now,concluidaPor:S.me||'',iniciadaTs:t.iniciadaTs||t.criadoTs||now,resultado:v.resultado,atualizacoes:at}),'Tarefa concluída')}});
+}
+function abrirTarefa(t0){
+  const t=S.tarefas.find(x=>x.id===t0.id)||t0;const pop=POPS[t.pop];const s=stTarefa(t),p=prazoTs(t),now=Date.now();
+  const ini=t.iniciadaTs,fim=t.concluidaTs,cri=t.criadoTs;
+  const prazoTxt=s==='concluida'?(p?((fim<=p)?'Entregue dentro do prazo':'Entregue '+dur(fim-p)+' depois do prazo'):''):p?(p<now?'Atrasada há '+dur(now-p):'Faltam '+dur(p-now)):'';
+  const ups=(t.atualizacoes||[]).slice().sort((a,b)=>b.ts-a.ts);
+  abrirModal(`<header><div><h2>${esc(t.titulo)}</h2><div class="small muted">Para ${esc(nomeM(t.responsavel))} · delegada por ${esc(nomeM(t.criadoPor))}</div></div><button class="btn s" id="xF">Fechar</button></header>
+    <div class="tl">
+      <div><span class="k">Delegada</span><b>${fdt(cri)}</b></div>
+      <div><span class="k">Começou</span><b>${ini?fdt(ini):'Ainda não'}</b><span class="s">${ini&&cri?dur(ini-cri)+' depois de delegada':''}</span></div>
+      <div><span class="k">${s==='concluida'?'Concluída':'Tempo em execução'}</span><b>${s==='concluida'?fdt(fim):ini?dur(now-ini):'–'}</b><span class="s">${s==='concluida'?'Execução: '+dur(fim-(ini||cri)):''}</span></div>
+      <div><span class="k">Prazo</span><b>${fd(t.prazo)} ${esc(t.prazoHora||'18:00')}</b><span class="s">${prazoTxt}</span></div>
+    </div>
+    <div class="row">${pillTarefa(t)}<span class="pill n">Prioridade ${esc(t.prioridade||'Normal')}</span>${t.pop?`<span class="pill n">${t.pop}</span>`:''}${t.casoId?`<span class="pill n">Acordo: ${esc(S.casos.find(c=>c.id===t.casoId)?.cliente||'')}</span>`:''}</div>
+    ${t.obs?`<div class="guia"><h3>Instruções</h3><div>${esc(t.obs)}</div></div>`:''}
+    ${pop?`<div class="guia"><h3>${t.pop} ${esc(pop[0])}</h3><div id="ck">${pop[1].map((x,i)=>`<label class="ck"><input type="checkbox" data-i="${i}" ${(t.check||{})[i]?'checked':''} ${podeExecutar(t)&&s!=='concluida'?'':'disabled'}> ${esc(x)}</label>`).join('')}</div></div>`:''}
+    <div><h3>Atualizações</h3>
+      ${podeExecutar(t)&&s!=='concluida'?`<div class="upd"><textarea id="xU" placeholder="O que você fez, o que falta, se travou em algo"></textarea><button class="btn" id="xUB" type="button">Registrar atualização</button></div>`:''}
+      ${ups.length?`<div class="list">${ups.map(u=>`<div class="item"><div class="b"><div class="small muted">${fdt(u.ts)} · ${esc(nomeM(u.por))}</div><div>${esc(u.texto)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhuma atualização ainda.</p>'}
+    </div>
+    <div class="row" style="justify-content:flex-end">${podeEditarTarefa(t)?'<button class="btn" id="xE">Editar</button>':''}
+      ${s==='aberta'&&podeExecutar(t)?'<button class="btn p" id="xI">Começar agora</button>':''}
+      ${s!=='concluida'&&podeExecutar(t)?`<button class="btn ${s==='andamento'?'p':''}" id="xC">Concluir</button>`:''}
+      ${s==='concluida'&&podeEditarTarefa(t)?'<button class="btn" id="xR">Reabrir</button>':''}</div>`,m=>{
+    const g=x=>m.querySelector(x);
+    g('#xF').onclick=fecharModal;
+    if(g('#xE'))g('#xE').onclick=()=>{fecharModal();formTarefa(t)};
+    if(g('#xI'))g('#xI').onclick=async()=>{await iniciar(t);fecharModal();setTimeout(()=>abrirTarefa(t),150)};
+    if(g('#xC'))g('#xC').onclick=()=>{fecharModal();concluir(S.tarefas.find(x=>x.id===t.id)||t)};
+    if(g('#xR'))g('#xR').onclick=async()=>{fecharModal();await salvar(()=>API.upd('tarefas',t.id,{status:t.iniciadaTs?'andamento':'aberta',concluidaEm:'',concluidaTs:null}),'Tarefa reaberta')};
+    if(g('#xUB'))g('#xUB').onclick=async()=>{const tx=g('#xU').value.trim();if(!tx){g('#xU').focus();return}
+      const cur=S.tarefas.find(x=>x.id===t.id)||t;const up={atualizacoes:[...(cur.atualizacoes||[]),{ts:Date.now(),por:S.me||'',texto:tx}],ultimaAtualizacao:Date.now()};
+      if(stTarefa(cur)==='aberta'&&cur.responsavel===S.me){up.status='andamento';up.iniciadaTs=Date.now()}
+      if(await salvar(()=>API.upd('tarefas',t.id,up),'Atualização registrada')){fecharModal();setTimeout(()=>abrirTarefa(t),150)}};
+    m.querySelectorAll('#ck input').forEach(el=>el.onchange=async()=>{const cur=S.tarefas.find(x=>x.id===t.id)||t;const ck={...(cur.check||{}),[el.dataset.i]:el.checked};await salvar(()=>API.upd('tarefas',t.id,{check:ck}))});
+  });
+}
+function statsTarefas(mid,per){
+  const ts=S.tarefas.filter(t=>t.responsavel===mid),now=Date.now();
+  const ab=ts.filter(t=>stTarefa(t)!=='concluida');
+  const conc=ts.filter(t=>stTarefa(t)==='concluida'&&noPer(t.concluidaEm,per));
+  const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:NaN;
+  const ultimo=Math.max(0,...ts.map(t=>t.ultimaAtualizacao||t.iniciadaTs||0));
+  return {abertas:ab.filter(t=>stTarefa(t)==='aberta').length,andamento:ab.filter(t=>stTarefa(t)==='andamento').length,
+    atrasadas:ab.filter(t=>prazoTs(t)&&prazoTs(t)<now).length,concl:conc.length,
+    noPrazo:conc.length?conc.filter(t=>!prazoTs(t)||t.concluidaTs<=prazoTs(t)).length/conc.length:NaN,
+    tIni:avg(ts.filter(t=>t.iniciadaTs&&t.criadoTs&&noPer(iso(t.iniciadaTs),per)).map(t=>t.iniciadaTs-t.criadoTs)),
+    tExec:avg(conc.filter(t=>t.concluidaTs).map(t=>t.concluidaTs-(t.iniciadaTs||t.criadoTs||t.concluidaTs))),ultimo};
+}
+function vDelegar(){
+  if(!isGestor())return `<div class="top"><div><h1>Delegar tarefas</h1><p>Área da coordenação.</p></div></div>`;
+  const per=periodo(),now=Date.now(),f=S.f;
+  const pessoas=ativos().filter(m=>m.papel==='integrante');
+  let ts=S.tarefas.slice();if(f.resp)ts=ts.filter(t=>t.responsavel===f.resp);
+  if(f.dst==='abertas')ts=ts.filter(t=>stTarefa(t)!=='concluida');else if(f.dst==='atrasadas')ts=ts.filter(t=>stTarefa(t)!=='concluida'&&prazoTs(t)<now);else if(f.dst==='concluidas')ts=ts.filter(t=>stTarefa(t)==='concluida'&&noPer(t.concluidaEm,per));
+  ts.sort((a,b)=>(stTarefa(a)==='concluida')-(stTarefa(b)==='concluida')||(prazoTs(a)||0)-(prazoTs(b)||0));
+  return `<div class="top"><div><h1>Delegar tarefas</h1><p>Distribua com prazo e acompanhe quanto cada um leva para começar e para entregar. As atualizações que eles escrevem aparecem aqui.</p></div>
+    <div class="row">${perSel()}<button class="btn p" onclick="formTarefa({},{responsavel:''})">Delegar tarefa</button></div></div>
+  <div class="cards">${pessoas.map(m=>{const x=statsTarefas(m.id,per);
+    return `<div class="card pc"><header><h3>${esc(m.nome)}</h3><button class="btn s p" data-dl="${m.id}">Delegar</button></header>
+    <div class="mini"><div><b>${x.abertas}</b><span>não iniciadas</span></div><div><b>${x.andamento}</b><span>em andamento</span></div><div><b style="color:${x.atrasadas?'var(--bad)':'inherit'}">${x.atrasadas}</b><span>atrasadas</span></div><div><b>${x.concl}</b><span>concluídas</span></div></div>
+    <div class="small"><div class="row" style="justify-content:space-between"><span class="muted">Tempo para começar</span><b>${dur(x.tIni)}</b></div>
+    <div class="row" style="justify-content:space-between"><span class="muted">Tempo de execução</span><b>${dur(x.tExec)}</b></div>
+    <div class="row" style="justify-content:space-between"><span class="muted">Entregas no prazo</span><b>${pct(x.noPrazo)}</b></div>
+    <div class="row" style="justify-content:space-between"><span class="muted">Última atualização</span><b>${x.ultimo?fdt(x.ultimo):'–'}</b></div></div>
+    <button class="btn s" data-rf2="${m.id}">Ver tarefas</button></div>`}).join('')||'<p class="empty">Cadastre integrantes em Equipe e alçadas.</p>'}</div>
+  <section class="card"><header><h2>Tarefas</h2><div class="filters"><select id="fResp"><option value="">Todos</option>${opM().map(([a,b])=>`<option value="${a}" ${f.resp===a?'selected':''}>${esc(b)}</option>`).join('')}</select>
+    <select id="fDst">${[['abertas','Em aberto'],['atrasadas','Atrasadas'],['concluidas','Concluídas no período'],['todas','Todas']].map(([a,b])=>`<option value="${a}" ${f.dst===a?'selected':''}>${b}</option>`).join('')}</select></div></header>
+  ${ts.length?`<div class="tw"><table><tr><th>Tarefa</th><th>Responsável</th><th>Delegada</th><th>Prazo</th><th>Situação</th><th>Tempo</th><th>Última atualização</th></tr>
+  ${ts.map(t=>{const s=stTarefa(t);const u=(t.atualizacoes||[]).slice(-1)[0];
+    const tempo=s==='concluida'?'Execução '+dur(t.concluidaTs-(t.iniciadaTs||t.criadoTs)):s==='andamento'?'Há '+dur(now-t.iniciadaTs)+' em execução':'Aguardando há '+dur(now-(t.criadoTs||now));
+    return `<tr class="click" data-t="${t.id}"><td><b style="white-space:normal">${esc(t.titulo)}</b>${t.prioridade==='Alta'?' <span class="pill bad">Alta</span>':''}</td><td>${esc(nomeM(t.responsavel))}</td><td>${fdt(t.criadoTs)}</td><td>${fd(t.prazo)} ${esc(t.prazoHora||'')}</td><td>${pillTarefa(t)}</td><td class="small">${tempo}</td>
+    <td class="small">${u?`<span class="muted">${fdt(u.ts)}</span><br>${esc(u.texto.slice(0,90))}`:'<span class="muted">Sem atualização</span>'}</td></tr>`}).join('')}</table></div>`:'<p class="empty">Nenhuma tarefa neste filtro.</p>'}</section>`;
+}
+
+/* ===================== views ===================== */
+function vHoje(){
+  if(!S.me)return `<div class="top"><div><h1>Minha fila de hoje</h1><p>Escolha seu nome na barra lateral para ver sua fila, seus retornos e seus números.</p></div></div>${onboarding()}`;
+  const h=hoje(),eu=S.me;
+  const tf=S.tarefas.filter(t=>t.responsavel===eu&&stTarefa(t)!=='concluida').sort((a,b)=>(prazoTs(a)||0)-(prazoTs(b)||0));
+  const ret=S.casos.filter(c=>c.responsavel===eu&&casoAberto(c)&&c.proximaData&&c.proximaData<=h).sort((a,b)=>a.proximaData.localeCompare(b.proximaData));
+  const avulsos=S.contatos.filter(c=>c.membroId===eu&&!c.casoId&&c.proximaData&&c.proximaData<=h&&!c.retornoFeito);
+  const aud=S.casos.filter(c=>c.responsavel===eu&&casoAberto(c)&&c.audiencia&&c.audiencia>=h&&c.audiencia<=addDias(h,7)).sort((a,b)=>a.audiencia.localeCompare(b.audiencia));
+  const par=S.casos.filter(c=>c.responsavel===eu&&casoAberto(c)&&parado(c)>7);
+  const parc=S.casos.filter(c=>c.responsavel===eu&&['homologado','cumprimento'].includes(c.etapa)&&c.parcelas&&(+c.parcelasPagas||0)<+c.parcelas);
+  const dHoje=metricas(eu,[h,h]),dSem=metricas(eu,[addDias(h,-6),h]);
+  const st=t=>prazoTs(t)<Date.now()?'bad':t.prazo===h?'warn':stTarefa(t)==='andamento'?'info':'';
+  return `<div class="top"><div><h1>Bom trabalho, ${esc((membro(eu)?.nome||'').split(' ').slice(0,2).join(' '))}</h1><p>${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}. Comece pelos itens vermelhos.</p></div>
+    <div class="row"><button class="btn" onclick="formTarefa()">Nova tarefa</button><button class="btn p" onclick="formContato()">Registrar contato</button></div></div>
+  <div class="tiles">
+    <div class="tile"><div class="k">Contatos hoje</div><div class="v">${dHoje.cts}</div><div class="s">${dHoje.ef} efetivos</div></div>
+    <div class="tile"><div class="k">Contatos na semana</div><div class="v">${dSem.cts}</div><div class="s">${pct(dSem.efPct)} efetivos</div></div>
+    <div class="tile"><div class="k">Propostas na semana</div><div class="v">${dSem.prop}</div></div>
+    <div class="tile"><div class="k">Acordos na semana</div><div class="v">${dSem.fech}</div><div class="s">${brlK(dSem.valor)}</div></div>
+    <div class="tile"><div class="k">Tarefas atrasadas</div><div class="v" style="color:${dHoje.atras?'var(--bad)':'inherit'}">${dHoje.atras}</div></div>
+  </div>
+  ${msgCard()}
+  <div class="grid g2">
+    <section class="card"><header><h2>Minhas tarefas</h2><span class="pill n">${tf.length}</span></header>
+      ${tf.length?`<div class="list">${tf.map(t=>`<div class="item"><span class="stripe ${st(t)}"></span><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">Prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')} · ${esc(t.prioridade)}${t.criadoPor&&t.criadoPor!==eu?' · de '+esc(nomeM(t.criadoPor)):''}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" data-t="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa aberta.</p>'}</section>
+    <section class="card"><header><h2>Retornos combinados</h2><span class="pill n">${ret.length+avulsos.length}</span></header>
+      ${ret.length+avulsos.length?`<div class="list">${ret.map(c=>`<div class="item"><span class="stripe ${c.proximaData<h?'bad':'warn'}"></span><div class="b"><div class="t">${esc(c.cliente)} x ${esc(c.contraparte)}</div><div class="small muted">${fd(c.proximaData)} · ${esc(c.proximoPasso||'retomar negociação')}</div></div><button class="btn s" data-c="${c.id}">Abrir</button></div>`).join('')}
+      ${avulsos.map(c=>`<div class="item"><span class="stripe warn"></span><div class="b"><div class="t">${esc(c.cliente||'Contato avulso')}</div><div class="small muted">${fd(c.proximaData)} · ${esc(c.proximoPasso||c.resumo)}</div></div><button class="btn s" data-rf="${c.id}">Feito</button></div>`).join('')}</div>`:'<p class="empty">Nenhum retorno para hoje.</p>'}</section>
+    <section class="card"><header><h2>Audiências de conciliação em 7 dias (POP-03)</h2></header>
+      ${aud.length?`<div class="list">${aud.map(c=>`<div class="item"><span class="stripe info"></span><div class="b"><div class="t">${fd(c.audiencia)} · ${esc(c.cliente)}</div><div class="small muted">${esc(c.contraparte)} · proposta inicial ${c.p1?brl(c.p1):'não definida'} · limite ${c.p3?brl(c.p3):'não definido'}</div></div><button class="btn s" data-c="${c.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma audiência na semana.</p>'}</section>
+    <section class="card"><header><h2>Acordos parados há mais de 7 dias</h2></header>
+      ${par.length?`<div class="list">${par.map(c=>`<div class="item"><span class="stripe bad"></span><div class="b"><div class="t">${esc(c.cliente)} x ${esc(c.contraparte)}</div><div class="small muted">${parado(c)} dias sem movimento · ${esc(ETAPAS[ETAPA_IDX[c.etapa]||0][1])}</div></div><button class="btn s" data-c="${c.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhum acordo parado.</p>'}</section>
+    ${parc.length?`<section class="card"><header><h2>Parcelas de acordos a conferir (POP-04)</h2></header><div class="list">${parc.map(c=>`<div class="item"><span class="stripe info"></span><div class="b"><div class="t">${esc(c.cliente)}</div><div class="small muted">${+c.parcelasPagas||0} de ${c.parcelas} pagas pela contraparte · 1º vencimento ${fd(c.primeiroVenc)}</div></div><button class="btn s" data-pp="${c.id}">+1 paga</button></div>`).join('')}</div></section>`:''}
+  </div>`;
+}
+function msgCard(){
+  const ms=mensagensDoDia();S.msgDia=Object.fromEntries(ms.map(x=>[x.key,x]));if(!ms.length)return '';
+  return `<section class="card"><header><h2>Mensagens do dia no WhatsApp</h2><span class="small muted">O app separa; você confere e envia</span></header><div class="list">${ms.map(x=>`<div class="item"><span class="stripe ok"></span><div class="b"><div class="t">${esc(x.titulo)}</div><div class="small muted">${x.cli?.telefone?esc(x.cli.telefone):'Cliente sem WhatsApp cadastrado'}</div></div>
+  <div class="row" style="gap:6px">${x.cli?.telefone?`<button class="btn s wa" data-wm="${x.key}">Enviar</button>`:''}<button class="btn s" data-msgok="${x.key}">Já enviei</button></div></div>`).join('')}</div></section>`;
+}
+function onboarding(){
+  if(S.equipe.length)return '';
+  return `<div class="note"><b>Primeiro acesso.</b> Cadastre a equipe do setor em <a href="#equipe">Equipe e alçadas</a>. Depois, cada pessoa abre este link, escolhe o próprio nome na barra lateral e começa a registrar.</div>`;
+}
+
+function vAcordos(){
+  const pend=S.casos.filter(c=>c.aprovacao&&c.aprovacao.status==='pendente').length;
+  const tabs=`<div class="tabs"><button data-ac="funil" class="${S.f.ac==='funil'?'on':''}">Funil</button><button data-ac="aprov" class="${S.f.ac==='aprov'?'on':''}">Aprovações de alçada${pend?` (${pend})`:''}</button></div>`;
+  return S.f.ac==='aprov'?vAprov().replace('</div></div>','</div></div>'+tabs):vFunil(tabs);
+}
+function vFunil(tabs){
+  const f=S.f;
+  let cs=S.casos.filter(c=>!c.recusadoEm&&!c.arquivado);
+  if(f.resp)cs=cs.filter(c=>c.responsavel===f.resp);if(f.cp)cs=cs.filter(c=>c.tipoContraparte===f.cp);
+  const tot=cs.filter(c=>ETAPA_IDX[c.etapa]<FECHADO_MIN).reduce((s,c)=>s+(+c.valorReferencia||0),0);
+  const encerr=S.casos.filter(c=>c.recusadoEm).sort((a,b)=>b.recusadoEm.localeCompare(a.recusadoEm)).slice(0,10);
+  return `<div class="top"><div><h1>Acordos</h1><p>Cada cartão é um processo de cliente com chance de acordo. A borda mostra há quanto tempo está parado: verde até 3 dias, amarelo até 7, vermelho acima disso.</p></div>
+    <button class="btn p" onclick="formCaso()">Novo acordo</button></div>
+  ${tabs}
+  <div class="filters"><select id="fResp"><option value="">Todos os responsáveis</option>${opM().map(([a,b])=>`<option value="${a}" ${f.resp===a?'selected':''}>${esc(b)}</option>`).join('')}</select>
+    <select id="fCp"><option value="">Todas as contrapartes</option>${CONTRAPARTES.map(x=>`<option ${f.cp===x?'selected':''}>${x}</option>`).join('')}</select>
+    <span class="small muted">${cs.filter(c=>ETAPA_IDX[c.etapa]<FECHADO_MIN).length} em negociação · ${brlK(tot)} em valor de referência</span></div>
+  <div class="kanban">${ETAPAS.map(([k,l])=>{const it=cs.filter(c=>(c.etapa||'mapeado')===k);
+    return `<div class="col"><h3><span>${l}</span><span class="muted">${it.length}</span></h3>${it.map(c=>{const p=parado(c);
+      return `<div class="kc ${p>7?'late':p>3?'mid':'fresh'}" data-c="${c.id}"><div class="t">${esc(c.cliente)}</div><div class="small muted">${esc(c.contraparte)}${c.processo?' · '+esc(c.processo):''}</div>
+      <div class="small">${c.valorAcordado?'Acordado '+brl(c.valorAcordado):c.valorEmDiscussao?'Em discussão '+brl(c.valorEmDiscussao):c.valorReferencia?'Ref. '+brl(c.valorReferencia):'Sem valor'}</div>
+      <div class="row" style="gap:4px">${ETAPA_IDX[k]<FECHADO_MIN?pillAlcada(c):''}${c.audiencia&&c.audiencia>=hoje()?`<span class="pill info">Aud. ${fd(c.audiencia)}</span>`:''}${['homologado','cumprimento'].includes(k)&&c.parcelas?`<span class="pill n">${+c.parcelasPagas||0}/${c.parcelas} parcelas</span>`:''}</div>
+      <div class="small muted">${esc(nomeM(c.responsavel))} · ${p} d</div>
+      <div class="mv"><button class="btn s" data-mv="-1" data-id="${c.id}" aria-label="Voltar etapa">Voltar</button><button class="btn s" data-mv="1" data-id="${c.id}" aria-label="Avançar etapa">Avançar</button></div></div>`}).join('')||'<p class="small muted" style="padding:4px">Vazio</p>'}</div>`}).join('')}</div>
+  <section class="card"><header><h2>Encerrados sem acordo (últimos 10)</h2></header>${encerr.length?`<div class="tw"><table><tr><th>Data</th><th>Cliente</th><th>Contraparte</th><th class="n">Última oferta</th><th>Motivo</th><th>Nova tentativa</th><th></th></tr>${encerr.map(c=>`<tr><td>${fd(c.recusadoEm)}</td><td>${esc(c.cliente)}</td><td>${esc(c.contraparte)}</td><td class="n">${c.ultimaOferta?brl(c.ultimaOferta):'–'}</td><td>${esc(c.motivoRecusa)}</td><td>${fd(c.proximaData)}</td><td><button class="btn s" data-reab="${c.id}">Reabrir</button></td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhum.</p>'}</section>`;
+}
+
+function vTarefas(){
+  const f=S.f,h=hoje();
+  let ts=S.tarefas.slice();
+  if(f.resp)ts=ts.filter(t=>t.responsavel===f.resp);
+  if(!f.resp&&!isGestor()&&S.me)ts=ts.filter(t=>t.responsavel===S.me);
+  if(f.status==='abertas')ts=ts.filter(t=>t.status!=='concluida');else if(f.status==='concluidas')ts=ts.filter(t=>t.status==='concluida');else if(f.status==='atrasadas')ts=ts.filter(t=>t.status!=='concluida'&&t.prazo<h);
+  ts.sort((a,b)=>(a.prazo||'').localeCompare(b.prazo||''));
+  return `<div class="top"><div><h1>Tarefas</h1><p>${isGestor()?'Lance e distribua tarefas com prazo e responsável. Tarefas com POP só fecham com o checklist completo.':'Suas tarefas e as da equipe. Tarefas com POP só fecham com o checklist completo.'}</p></div><button class="btn p" onclick="formTarefa()">Nova tarefa</button></div>
+  <div class="filters"><select id="fResp"><option value="">Todos</option>${opM().map(([a,b])=>`<option value="${a}" ${f.resp===a?'selected':''}>${esc(b)}</option>`).join('')}</select>
+  <select id="fStatus">${[['abertas','Abertas'],['atrasadas','Atrasadas'],['concluidas','Concluídas'],['todas','Todas']].map(([a,b])=>`<option value="${a}" ${f.status===a?'selected':''}>${b}</option>`).join('')}</select></div>
+  <section class="card">${ts.length?`<div class="tw"><table><tr><th>Prazo</th><th>Tarefa</th><th>Responsável</th><th>Prioridade</th><th>POP</th><th>Situação</th></tr>
+  ${ts.map(t=>{const late=t.status!=='concluida'&&t.prazo<h;const pop=POPS[t.pop];const n=pop?Object.values(t.check||{}).filter(Boolean).length:0;
+    return `<tr class="click" data-t="${t.id}"><td>${fd(t.prazo)}</td><td>${esc(t.titulo)}</td><td>${esc(nomeM(t.responsavel))}</td><td>${t.prioridade==='Alta'?'<span class="pill bad">Alta</span>':esc(t.prioridade)}</td><td>${pop?`${t.pop} · ${n}/${pop[1].length}`:'–'}</td>
+    <td>${pillTarefa(t)}</td></tr>`}).join('')}</table></div>`:'<p class="empty">Nenhuma tarefa neste filtro.</p>'}</section>`;
+}
+
+function vAprov(){
+  const lv=meuNivel();
+  const pend=S.casos.filter(c=>c.aprovacao&&c.aprovacao.status==='pendente');
+  const hist=S.casos.filter(c=>c.aprovacao&&c.aprovacao.status!=='pendente').sort((a,b)=>(b.aprovacao.decididoEm||'').localeCompare(a.aprovacao.decididoEm||'')).slice(0,15);
+  return `<div class="top"><div><h1>Acordos</h1><p>Faixas atuais: até ${S.config.faixa1}% da referência o integrante decide, de ${S.config.faixa2}% a ${S.config.faixa1-1}% decide o coordenador, abaixo disso${+S.config.teto?' ou acima de '+brl(S.config.teto):''} decide a diretoria. Quando o cliente é devedor, a lógica se inverte.</p></div></div>
+  <section class="card"><header><h2>Pendentes</h2></header>${pend.length?`<div class="list">${pend.map(c=>{const pode=RANK[lv]>=RANK[c.aprovacao.nivel];
+    return `<div class="item"><span class="stripe ${c.aprovacao.nivel==='diretoria'?'bad':'warn'}"></span><div class="b"><div class="t">${esc(c.cliente)} x ${esc(c.contraparte)} · ${brl(c.aprovacao.valor)}</div>
+    <div class="small muted">Referência ${brl(c.valorReferencia)} · ${alcada(c)?.leitura||''} · ${NIVEL_TXT[c.aprovacao.nivel]} · pedido por ${esc(nomeM(c.aprovacao.pedidoPor))} em ${fd(c.aprovacao.em)}</div>
+    <div class="small">${esc(c.aprovacao.just||'')}</div></div>
+    <div class="row">${pode?`<button class="btn s p" data-apr="${c.id}">Aprovar</button><button class="btn s d" data-neg="${c.id}">Recusar</button>`:'<span class="small muted">Fora do seu nível</span>'}<button class="btn s" data-c="${c.id}">Abrir</button></div></div>`}).join('')}</div>`:'<p class="empty">Nenhum pedido pendente.</p>'}</section>
+  <section class="card"><header><h2>Decididos recentemente</h2></header>${hist.length?`<div class="tw"><table><tr><th>Data</th><th>Acordo</th><th class="n">Valor</th><th>Decisão</th><th>Por</th></tr>${hist.map(c=>`<tr><td>${fd(c.aprovacao.decididoEm)}</td><td>${esc(c.cliente)} x ${esc(c.contraparte)}</td><td class="n">${brl(c.aprovacao.valor)}</td><td>${c.aprovacao.status==='aprovada'?'<span class="pill ok">Aprovada</span>':'<span class="pill bad">Recusada</span>'}</td><td>${esc(nomeM(c.aprovacao.decididoPor))}</td></tr>`).join('')}</table></div>`:'<p class="empty">Nada decidido ainda.</p>'}</section>`;
+}
+async function decidir(id,ok){
+  const c=S.casos.find(x=>x.id===id);if(!c)return;
+  const go=async motivo=>salvar(()=>API.upd('casos',id,{aprovacao:{...c.aprovacao,status:ok?'aprovada':'recusada',nivel:ok?meuNivel():c.aprovacao.nivel,decididoPor:S.me||'',decididoEm:hoje(),motivo:motivo||''}}),ok?'Aprovado':'Recusado');
+  if(ok)return go();
+  abrirForm({titulo:'Recusar pedido',botao:'Recusar',fields:[{k:'motivo',label:'Motivo e orientação ao negociador',type:'textarea',full:true,req:true}],onSubmit:v=>go(v.motivo)});
+}
+
+/* ---------- painel ---------- */
+function chartDias(per,mid){
+  const [a,b]=per;const n=Math.min(dias(a,b)+1,90);const ini=addDias(b,-(n-1));
+  const cnt={};S.contatos.forEach(c=>{if((!mid||c.membroId===mid)&&noPer(c.data,[ini,b]))cnt[c.data]=(cnt[c.data]||0)+1});
+  const vals=[...Array(n)].map((_,i)=>{const d=addDias(ini,i);return [d,cnt[d]||0]});
+  const max=Math.max(4,...vals.map(v=>v[1]));const top=Math.ceil(max/4)*4;
+  const W=680,H=150,L=28,B=20,bw=(W-L)/n;
+  let g='';for(let i=0;i<=4;i++){const y=H-B-(H-B-8)*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-4}" y="${y+3}" text-anchor="end">${top*i/4}</text>`}
+  const bars=vals.map(([d,v],i)=>{const h=(H-B-8)*v/top;const x=L+i*bw+1;const wk=new Date(d+'T12:00').getDay();
+    return `<rect x="${x}" y="${H-B-h}" width="${Math.max(1,bw-2)}" height="${h}" rx="1.5" fill="${i===n-1?'var(--accent)':wk===0||wk===6?'var(--line)':'color-mix(in srgb,var(--accent) 55%,transparent)'}"><title>${fd(d)}: ${v} contatos</title></rect>`}).join('');
+  const step=Math.ceil(n/8);const lbl=vals.map(([d],i)=>(i%step===0&&n-1-i>=step/2)||i===n-1?`<text x="${L+i*bw+bw/2}" y="${H-5}" text-anchor="middle">${d.slice(8)}/${d.slice(5,7)}</text>`:'').join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Contatos por dia">${g}${bars}${lbl}</svg>`;
+}
+function vPainel(){
+  if(!isGestor()){const per=periodo(),m=S.me?metricas(S.me,per):null;
+    return `<div class="top"><div><h1>Meu desempenho</h1><p>O painel completo da equipe é visível só para coordenação e diretoria.</p></div>${perSel()}</div>${m?tilesM(m):'<p class="empty">Escolha seu nome na barra lateral.</p>'}`}
+  const per=periodo(),f=S.f;const tot=metricas(f.membro||null,per);
+  const ms=ativos().map(m=>({m,x:metricas(m.id,per)}));
+  const maxC=Math.max(1,...ms.map(o=>o.x.cts)),maxV=Math.max(1,...ms.map(o=>o.x.valor));
+  const porCp=CONTRAPARTES.map(cp=>{const cs=S.casos.filter(c=>c.tipoContraparte===cp&&(!f.membro||c.responsavel===f.membro));
+    const fe=cs.filter(c=>noPer(c.fechadoEm,per)).length,re=cs.filter(c=>noPer(c.recusadoEm,per)).length;
+    return {cp,ab:cs.filter(casoAberto).filter(c=>ETAPA_IDX[c.etapa]<FECHADO_MIN).length,fe,re,taxa:(fe+re)?fe/(fe+re):NaN,v:cs.filter(c=>noPer(c.fechadoEm,per)).reduce((s,c)=>s+(+c.valorAcordado||0),0)}}).filter(o=>o.ab||o.fe||o.re);
+  const parados=S.casos.filter(c=>casoAberto(c)&&parado(c)>7&&(!f.membro||c.responsavel===f.membro)).sort((a,b)=>parado(b)-parado(a)).slice(0,12);
+  return `<div class="top"><div><h1>Painel de produtividade</h1><p>Período de ${fd(per[0])} a ${fd(per[1])}. Volume e resultado aparecem sempre lado a lado, para não premiar quem só liga muito.</p></div>
+    <div class="row">${perSel()}<select id="fMembro" class="btn"><option value="">Setor inteiro</option>${opM().map(([a,b])=>`<option value="${a}" ${f.membro===a?'selected':''}>${esc(b)}</option>`).join('')}</select><button class="btn" id="btnResumo">Copiar resumo para a diretoria</button></div></div>
+  ${tilesM(tot)}
+  <section class="card"><header><h2>Contatos por dia</h2><span class="small muted">${f.membro?esc(nomeM(f.membro)):'Setor inteiro'} · último dia destacado</span></header>${chartDias(per,f.membro||null)}</section>
+  <section class="card"><header><h2>Por pessoa</h2><span class="small muted">Clique numa linha para filtrar o painel</span></header>
+  ${ms.length?`<div class="tw"><table><tr><th>Pessoa</th><th>Contatos</th><th class="n">Efetivos</th><th class="n">Propostas</th><th class="n">Acordos</th><th>Valor acordado</th><th class="n">Taxa</th><th class="n">Dias até acordo</th><th class="n">Tarefas no prazo</th><th class="n">Execução média</th><th class="n">Atrasadas</th><th class="n">Parados</th><th class="n">Leads / contratos</th></tr>
+  ${ms.map(({m,x})=>`<tr class="click" data-mf="${m.id}"><td><b>${esc(m.nome)}</b><div class="small muted">${esc(PAPEIS.find(p=>p[0]===m.papel)?.[1]||'')}${m.frente?' · '+esc(m.frente):''}</div></td>
+    <td><div class="row" style="gap:6px;flex-wrap:nowrap"><div class="bar" style="width:80px"><i style="width:${x.cts/maxC*100}%"></i></div><span>${x.cts}</span></div></td>
+    <td class="n">${pct(x.efPct)}</td><td class="n">${x.prop}</td><td class="n"><b>${x.fech}</b></td>
+    <td><div class="row" style="gap:6px;flex-wrap:nowrap"><div class="bar ok" style="width:80px"><i style="width:${x.valor/maxV*100}%"></i></div><span>${brlK(x.valor)}</span></div></td>
+    <td class="n">${pct(x.taxa)}</td><td class="n">${isFinite(x.tempo)?Math.round(x.tempo):'–'}</td><td class="n">${pct(x.noPrazo)}</td><td class="n">${dur(statsTarefas(m.id,per).tExec)}</td>
+    <td class="n">${x.atras?`<span class="pill bad">${x.atras}</span>`:'0'}</td><td class="n">${x.parados?`<span class="pill warn">${x.parados}</span>`:'0'}</td><td class="n">${x.leads} / ${x.conv}</td></tr>`).join('')}</table></div>`:'<p class="empty">Cadastre a equipe para ver a produtividade por pessoa.</p>'}</section>
+  <div class="grid g2">
+  <section class="card"><header><h2>Por tipo de contraparte</h2></header>${porCp.length?`<div class="tw"><table><tr><th>Contraparte</th><th class="n">Em negociação</th><th class="n">Fechados</th><th class="n">Sem acordo</th><th class="n">Taxa</th><th class="n">Valor</th></tr>${porCp.map(o=>`<tr><td>${o.cp}</td><td class="n">${o.ab}</td><td class="n">${o.fe}</td><td class="n">${o.re}</td><td class="n">${pct(o.taxa)}</td><td class="n">${brlK(o.v)}</td></tr>`).join('')}</table></div>`:'<p class="empty">Sem acordos no período.</p>'}
+  <p class="small muted">Referência nacional: conciliação geral de 10,4% no Judiciário; cerca de 25% nas ações contra o INSS. Compare cada contraparte com a própria média, não com a do setor.</p></section>
+  <section class="card"><header><h2>Acordos parados há mais de 7 dias</h2></header>${parados.length?`<div class="list">${parados.map(c=>`<div class="item"><span class="stripe ${parado(c)>15?'bad':'warn'}"></span><div class="b"><div class="t">${esc(c.cliente)} x ${esc(c.contraparte)}</div><div class="small muted">${esc(nomeM(c.responsavel))} · ${parado(c)} dias · ${esc(ETAPAS[ETAPA_IDX[c.etapa]||0][1])}</div></div><button class="btn s" data-c="${c.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</section>
+  </div>`;
+}
+function perSel(){return `<select id="fPer" class="btn">${[['7','Últimos 7 dias'],['30','Últimos 30 dias'],['mes','Mês atual'],['mesant','Mês anterior'],['90','Últimos 90 dias']].map(([a,b])=>`<option value="${a}" ${S.f.per===a?'selected':''}>${b}</option>`).join('')}</select>`}
+function tilesM(x){return `<div class="tiles">
+  <div class="tile"><div class="k">Contatos</div><div class="v">${x.cts}</div><div class="s">${pct(x.efPct)} efetivos (meta acima de 60%)</div></div>
+  <div class="tile"><div class="k">Propostas enviadas</div><div class="v">${x.prop}</div></div>
+  <div class="tile"><div class="k">Acordos fechados</div><div class="v">${x.fech}</div><div class="s">${x.rec} encerrados sem acordo</div></div>
+  <div class="tile"><div class="k">Valor acordado</div><div class="v">${brlK(x.valor)}</div></div>
+  <div class="tile"><div class="k">Taxa de acordo</div><div class="v">${pct(x.taxa)}</div><div class="s">fechados ÷ encerrados</div></div>
+  <div class="tile"><div class="k">Dias até o acordo</div><div class="v">${isFinite(x.tempo)?Math.round(x.tempo):'–'}</div><div class="s">média, 1º contato ao aceite</div></div>
+  <div class="tile"><div class="k">Tarefas no prazo</div><div class="v">${pct(x.noPrazo)}</div><div class="s">${x.concl} concluídas · ${x.atras} atrasadas</div></div>
+  <div class="tile"><div class="k">Leads atendidos</div><div class="v">${x.leads}</div><div class="s">${x.conv} viraram contrato</div></div></div>`}
+function resumoTexto(){
+  const per=periodo(),t=metricas(null,per);
+  let s=`SETOR DE ACORDOS, resumo de ${fd(per[0])} a ${fd(per[1])}\n\nSetor: ${t.cts} contatos (${pct(t.efPct)} efetivos), ${t.prop} propostas, ${t.fech} acordos fechados somando ${brl(t.valor)}, taxa de acordo ${pct(t.taxa)}, ${t.parados} acordos parados há mais de 7 dias, ${t.atras} tarefas atrasadas.\n\nPor pessoa:\n`;
+  ativos().forEach(m=>{const x=metricas(m.id,per);s+=`- ${m.nome}: ${x.cts} contatos, ${x.prop} propostas, ${x.fech} acordos (${brl(x.valor)}), tarefas no prazo ${pct(x.noPrazo)}, ${x.atras} atrasadas, ${x.leads} leads e ${x.conv} contratos.\n`});
+  const pend=S.casos.filter(c=>c.aprovacao&&c.aprovacao.status==='pendente');
+  if(pend.length)s+=`\nAprovações pendentes: ${pend.map(c=>`${c.cliente} x ${c.contraparte} (${brl(c.aprovacao.valor)})`).join('; ')}.\n`;
+  return s;
+}
+
+/* ---------- captação ---------- */
+const DJEN='https://comunica.pje.jus.br/';
+const EPROC='https://eproc1.tjto.jus.br/eprocV2_prod_1grau/externo_controlador.php?acao=processo_consulta_publica';
+function vCapt(){
+  const t=S.f.capt;
+  const tab=(k,l)=>`<button data-capt="${k}" class="${t===k?'on':''}">${l}</button>`;
+  return `<div class="top"><div><h1>Captação de clientes</h1><p>Onde estão as novas demandas e o que fazer, na prática, para essas pessoas chegarem até nós. Tudo dentro do Código de Ética e do Provimento 205/2021.</p></div><button class="btn p" onclick="fichaAtendimento()">Novo atendimento</button></div>
+  <div class="tabs">${tab('nichos','Nichos em alta')}${tab('plano','Plano de 30 dias')}${tab('leads','Quem nos procurou')}${tab('pauta','Conteúdo')}${tab('radar','Radar da carteira')}${tab('reativ','Pós-acordo e indicações')}${tab('regras','Pode e não pode')}</div>
+  ${t==='nichos'?cNichos():t==='plano'?cPlano():t==='leads'?cLeads():t==='radar'?cRadar():t==='reativ'?cReativ():t==='pauta'?cPauta():cRegras()}`;
+}
+function cNichos(){
+  const ns=S.nichos.slice().sort((a,b)=>(a.ordem||99)-(b.ordem||99));
+  if(!ns.length)return '<p class="empty">Nenhum nicho carregado ainda.</p>';
+  const atual=ns.map(n=>n.atualizado).sort().pop();
+  return `<p class="small muted">Notícias levantadas em ${fd(atual)}. Cada nicho traz o fato novo, quem é o público, o que fazer na prática e ideias de conteúdo prontas para a pauta.</p>
+  <div class="nichos">${ns.map(n=>{const leads=S.leads.filter(l=>l.area===n.area).length;
+    return `<article class="card nicho"><header><div><span class="pill info">${esc(n.tag)}</span> ${leads?`<span class="pill ok">${leads} atendimento(s)</span>`:''}<h2 style="margin-top:6px">${esc(n.titulo)}</h2></div></header>
+    <div class="fato"><b>O que aconteceu</b><p>${esc(n.noticia)}</p></div>
+    <div class="small"><b>Quem procurar:</b> ${esc(n.publico)}</div>
+    <div><b class="small">O que fazer</b><ol class="passos">${(n.acoes||[]).map(a=>`<li>${esc(a)}</li>`).join('')}</ol></div>
+    <div><b class="small">Ideias de conteúdo</b><ul class="small">${(n.conteudos||[]).map(c=>`<li>${esc(c)}</li>`).join('')}</ul></div>
+    <div class="row"><button class="btn s p" data-npauta="${n.id}">Mandar ideias para a pauta</button>${n.area?`<button class="btn s" data-nficha="${n.id}">Abrir ficha deste assunto</button>`:''}</div>
+    <div class="small muted fontes">Fontes: ${(n.fontes||[]).map(f=>`<a href="${esc(f.u)}" target="_blank" rel="noopener">${esc(f.t)}</a>`).join(' · ')}</div></article>`}).join('')}</div>`;
+}
+const PLANO=[
+  ['Semana 1 · Ser encontrado',[
+    ['Criar ou revisar o Perfil da Empresa no Google (categorias, horário, fotos, telefone do setor, link do WhatsApp)','Coordenação'],
+    ['Pedir avaliação no Google a cada cliente com acordo homologado, pelo modelo de mensagem do app, sem oferecer nada em troca','Equipe'],
+    ['WhatsApp Business do setor com mensagem de saudação, alerta do golpe do falso advogado e mensagem de ausência','Equipe'],
+    ['Resposta a quem nos procura em até 1 hora útil, sempre com ficha aberta no app','Equipe']]],
+  ['Semana 2 · Ser lembrado na busca',[
+    ['Uma página por nicho no site, com texto informativo e botão do WhatsApp, sem preço e sem promessa','Coordenação'],
+    ['Google Ads só com palavras-chave que respondem a uma busca da pessoa (ex.: golpe Pix advogado Palmas, alongamento dívida rural), sem anúncio em vídeo','Coordenação'],
+    ['Medir de onde vem cada atendimento: o campo Como chegou da ficha precisa ser preenchido sempre','Equipe']]],
+  ['Semana 3 · Conteúdo',[
+    ['Dois posts por semana a partir das ideias de cada nicho, revisados pelo advogado antes de publicar','Equipe'],
+    ['Um vídeo curto por semana respondendo uma dúvida comum, com a cara do escritório e sem tom de venda','Coordenação'],
+    ['Responder dúvidas nos comentários de forma geral e chamar para o atendimento no WhatsApp, sem consultoria pública','Equipe']]],
+  ['Semana 4 · Relacionamento',[
+    ['Agendar uma palestra informativa em associação, sindicato, cooperativa ou CDL, sem oferta de contratação no evento','Coordenação'],
+    ['Aproximação com contadores e cooperativas para troca de conhecimento, sem pagar ou receber por indicação','Coordenação'],
+    ['Rodar o Radar da carteira e o contato de pós-acordo com os clientes que já temos','Equipe'],
+    ['Reunião de 30 minutos: atendimentos por origem e por nicho, contratos fechados, o que ajustar','Coordenação']]]];
+function cPlano(){
+  const f=(S.plano.find(x=>x.id==='geral')||{}).feitos||{};let tot=0,ok=0;
+  const html=PLANO.map(([sem,its],si)=>`<section class="card"><header><h2>${esc(sem)}</h2></header><div class="list">${its.map(([t,q],i)=>{const k=si+'_'+i;tot++;if(f[k])ok++;
+    return `<label class="item"><input type="checkbox" data-plano="${k}" ${f[k]?'checked':''}><div class="b"><div>${esc(t)}</div><div class="small muted">${q}${f[k]?' · feito em '+fd(f[k].em)+' por '+esc(nomeM(f[k].por)):''}</div></div></label>`}).join('')}</div></section>`).join('');
+  return `<div class="tile"><div class="k">Andamento do plano</div><div class="v">${ok} de ${tot}</div><div class="bar ok" style="margin-top:6px"><i style="width:${tot?ok/tot*100:0}%"></i></div></div>${html}`;
+}
+async function marcarPlano(k,on){const cur=(S.plano.find(x=>x.id==='geral')||{}).feitos||{};const f={...cur};if(on)f[k]={em:hoje(),por:S.me||''};else delete f[k];await salvar(()=>API.set('plano','geral',{feitos:f}))}
+async function nichoPauta(n){for(const [i,c] of (n.conteudos||[]).entries()){await API.set('pauta',nid(),{tema:c,area:n.area||'',canal:'Instagram',status:'Ideia',data:addDias(hoje(),3+i*3),responsavel:S.me||'',nicho:n.id});await new Promise(r=>setTimeout(r,120))}toast('Ideias enviadas para a pauta');}
+function cLeads(){
+  const per=periodo();const ls=S.leads.slice().sort((a,b)=>(b.criadoEm||'').localeCompare(a.criadoEm||''));
+  const noP=S.leads.filter(l=>noPer(l.criadoEm,per));
+  const porO=LEAD_ORIGEM.map(o=>{const a=noP.filter(l=>l.origem===o);return {o,n:a.length,c:a.filter(l=>l.status==='Contratou').length}}).filter(x=>x.n);
+  const abertos=ls.filter(l=>!['Contratou','Não contratou'].includes(l.status));
+  const semRetorno=abertos.filter(l=>dias(l.atualizadoEm||l.criadoEm,hoje())>=1);
+  return `<div class="row" style="justify-content:space-between"><div class="row">${perSel()}<span class="small muted">${noP.length} leads no período · ${noP.filter(l=>l.status==='Contratou').length} contratos · ${semRetorno.length} sem movimento há 1 dia ou mais</span></div><button class="btn p" onclick="fichaAtendimento()">Novo atendimento</button></div>
+  <div class="grid g2"><section class="card"><header><h2>Funil</h2></header><div class="list">${LEAD_STATUS.map(st=>{const n=ls.filter(l=>l.status===st).length;return `<div class="item"><div class="b">${st}</div><div class="bar" style="width:140px"><i style="width:${ls.length?n/ls.length*100:0}%"></i></div><b style="width:30px;text-align:right">${n}</b></div>`}).join('')}</div></section>
+  <section class="card"><header><h2>Conversão por origem no período</h2></header>${porO.length?`<table><tr><th>Origem</th><th class="n">Leads</th><th class="n">Contratos</th><th class="n">Conversão</th></tr>${porO.map(x=>`<tr><td>${x.o}</td><td class="n">${x.n}</td><td class="n">${x.c}</td><td class="n">${pct(x.c/x.n)}</td></tr>`).join('')}</table>`:'<p class="empty">Sem leads no período.</p>'}</section></div>
+  <section class="card"><header><h2>Leads em aberto</h2></header>${abertos.length?`<div class="tw"><table><tr><th>Entrada</th><th>Nome</th><th>Origem</th><th>Assunto</th><th>Responsável</th><th>Situação</th><th>Conflito</th></tr>${abertos.map(l=>`<tr class="click" data-l="${l.id}"><td>${fd(l.criadoEm)}</td><td>${esc(l.nome)}</td><td>${esc(l.origem)}</td><td>${esc(l.area)}</td><td>${esc(nomeM(l.responsavel))}</td><td><span class="pill ${dias(l.atualizadoEm||l.criadoEm,hoje())>=1?'warn':'info'}">${esc(l.status)}</span></td><td>${l.conflito?'<span class="pill ok">Checado</span>':'<span class="pill bad">Falta</span>'}</td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhum lead em aberto.</p>'}</section>`;
+}
+function formLead(l={}){
+  const novo=!l.id;
+  const fields=[{k:'nome',label:'Nome',req:true},{k:'telefone',label:'Telefone / WhatsApp'},{k:'origem',label:'Como chegou',type:'select',options:LEAD_ORIGEM,req:true},
+    {k:'indicadoPor',label:'Indicado por (se houver)'},{k:'area',label:'Assunto',type:'select',options:AREAS,req:true},{k:'urgencia',label:'Prazo urgente?',type:'date'},
+    {k:'resumo',label:'Fatos em poucas linhas',type:'textarea',full:true},{k:'responsavel',label:'Responsável',type:'select',options:opM,req:true},
+    {k:'advogado',label:'Advogado da área encaminhado'},{k:'status',label:'Situação',type:'select',options:LEAD_STATUS,blank:false},
+    {k:'valorProposta',label:'Honorários propostos (R$)',type:'money'},{k:'motivoPerda',label:'Se não contratou, por quê'},
+    {k:'conflito',label:'Conflito de interesse checado',type:'check',full:true}];
+  abrirForm({titulo:novo?'Novo lead':'Lead: '+l.nome,fields,values:{status:'Novo',responsavel:S.me||'',...l},apagar:novo?null:async()=>salvar(()=>API.del('leads',l.id),'Lead apagado'),
+    onSubmit:async v=>{if(v.status==='Contratou'&&!v.conflito){toast('Marque a checagem de conflito antes de contratar.');return false}
+      const doc={...l,...v,atualizadoEm:hoje()};if(novo)doc.criadoEm=hoje();if(v.status==='Contratou'&&!l.contratouEm)doc.contratouEm=hoje();
+      const id=l.id||nid();delete doc.id;return salvar(()=>API.set('leads',id,doc),'Lead salvo')}});
+}
+function cRadar(){
+  const rs=S.radar.slice().sort((a,b)=>(a.ultimaConsulta||'').localeCompare(b.ultimaConsulta||''));
+  const venc=rs.filter(r=>!r.ultimaConsulta||dias(r.ultimaConsulta,hoje())>=(+r.freq||30));
+  return `<div class="note ok"><b>Para que serve.</b> Acompanhar se clientes que já são do escritório (inclusive os que estão em acordo ou já tiveram processo conosco) passaram a ser réus em execução, busca e apreensão ou outra ação. Achado novo vira contato de atendimento com o próprio cliente, que é relação já existente.
+  <ul><li>Consulte pelo nome do cliente no <a href="${DJEN}" target="_blank" rel="noopener">Comunica PJe (DJEN)</a>, que reúne as intimações publicadas de todos os tribunais.</li><li>No TJTO, use a <a href="${EPROC}" target="_blank" rel="noopener">consulta pública do eProc</a> pelo CPF ou CNPJ.</li><li>A lista fica restrita a clientes com contrato ou procuração ativa.</li></ul></div>
+  <div class="row" style="justify-content:space-between"><span class="small muted">${rs.length} clientes no radar · ${venc.length} com consulta vencida</span><button class="btn p" onclick="formRadar()">Incluir cliente no radar</button></div>
+  <section class="card">${rs.length?`<div class="tw"><table><tr><th>Cliente</th><th>Documento</th><th>Frequência</th><th>Última consulta</th><th>Achados</th><th></th></tr>${rs.map(r=>{const v=!r.ultimaConsulta||dias(r.ultimaConsulta,hoje())>=(+r.freq||30);
+    return `<tr><td><b>${esc(r.nome)}</b></td><td>${esc(r.doc||'')}</td><td>${r.freq||30} dias</td><td>${v?`<span class="pill warn">${r.ultimaConsulta?fd(r.ultimaConsulta):'Nunca'}</span>`:fd(r.ultimaConsulta)}</td><td class="small">${esc(r.achados||'–')}</td>
+    <td><div class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn s" data-rok="${r.id}">Nada novo</button><button class="btn s p" data-rnew="${r.id}">Achei processo</button><button class="btn s" data-redit="${r.id}">Editar</button></div></td></tr>`}).join('')}</table></div>`:'<p class="empty">Nenhum cliente no radar. Comece pelos clientes com acordo em andamento e pelos que têm financiamento ou consignado.</p>'}</section>`;
+}
+function formRadar(r={}){
+  abrirForm({titulo:r.id?'Editar radar':'Incluir cliente no radar',fields:[{k:'nome',label:'Nome do cliente',req:true},{k:'doc',label:'CPF ou CNPJ'},{k:'freq',label:'Consultar a cada (dias)',type:'number'},{k:'achados',label:'Achados anteriores',type:'textarea',full:true},{k:'ativo',label:'Cliente com contrato ou procuração ativa',type:'check',full:true}],
+    values:{freq:30,ativo:true,...r},apagar:r.id?async()=>salvar(()=>API.del('radar',r.id),'Removido do radar'):null,
+    onSubmit:async v=>{if(!v.ativo){toast('O radar é só para clientes com vínculo ativo com o escritório.');return false}const id=r.id||nid();const d={...r,...v};delete d.id;return salvar(()=>API.set('radar',id,d),'Radar salvo')}});
+}
+function achado(r){
+  abrirForm({titulo:'Processo novo contra '+r.nome,botao:'Registrar e criar tarefa',fields:[{k:'processo',label:'Número do processo',req:true},{k:'tipo',label:'Tipo de ação',ph:'Execução, busca e apreensão…'},{k:'autor',label:'Quem move a ação'},{k:'prazo',label:'Prazo para a defesa, se já citado',type:'date'}],
+    onSubmit:async v=>{const txt=`${fd(hoje())}: ${v.processo} (${v.tipo||'ação'}${v.autor?' movida por '+v.autor:''})`;
+      const ok=await salvar(()=>API.upd('radar',r.id,{ultimaConsulta:hoje(),achados:(r.achados?r.achados+'\n':'')+txt}));if(!ok)return false;
+      await salvar(()=>API.set('tarefas',nid(),{titulo:`Avisar ${r.nome} sobre o processo ${v.processo} e oferecer atendimento`,responsavel:S.me||'',prazo:v.prazo?addDias(v.prazo,-3)<hoje()?hoje():addDias(v.prazo,-3):addDias(hoje(),1),prioridade:'Alta',pop:'POP-05',status:'aberta',criadoEm:hoje(),criadoPor:S.me||'',obs:txt}),'Achado registrado e tarefa criada');}});
+}
+function cReativ(){
+  const cs=S.casos.filter(c=>['homologado','cumprimento','cumprido'].includes(c.etapa)).sort((a,b)=>(b.fechadoEm||'').localeCompare(a.fechadoEm||''));
+  return `<div class="note"><b>Momento certo para pedir indicação:</b> logo depois do acordo homologado ou da última parcela paga, quando o cliente está satisfeito. Pedir que ele indique o escritório a conhecidos é permitido. O que não pode é pagar ou dar vantagem por indicação, nem pedir que ele procure terceiros em nosso nome.</div>
+  <section class="card">${cs.length?`<div class="tw"><table><tr><th>Cliente</th><th>Acordo</th><th class="n">Valor</th><th>Etapa</th><th>Pesquisa de satisfação</th><th>Pedido de indicação</th></tr>${cs.map(c=>`<tr><td><b>${esc(c.cliente)}</b></td><td>${esc(c.contraparte)} · ${fd(c.fechadoEm)}</td><td class="n">${brl(c.valorAcordado)}</td><td>${esc(ETAPAS[ETAPA_IDX[c.etapa]][1])}</td>
+    <td>${c.satisf?`<span class="pill ok">Nota ${c.satisf}</span>`:`<button class="btn s" data-sat="${c.id}">Registrar nota</button>`}</td><td>${c.indicacaoPedida?`<span class="pill ok">Pedido em ${fd(c.indicacaoPedida)}</span>`:`<button class="btn s" data-ind="${c.id}">Marcar como pedido</button>`}</td></tr>`).join('')}</table></div>`:'<p class="empty">Os acordos homologados aparecem aqui.</p>'}</section>`;
+}
+const SUGESTOES=[
+  ['Fui citado numa execução do banco. O que fazer nos primeiros 3 dias?','Defesa em execução bancária'],
+  ['Embargos à execução: o prazo de 15 dias e o que pode ser discutido','Defesa em execução bancária'],
+  ['Bloqueio de conta pelo SISBAJUD: o que é impenhorável','Defesa em execução bancária'],
+  ['Penhora de salário e aposentadoria: quando o juiz pode e quando não pode','Defesa em execução bancária'],
+  ['Bem de família: a casa onde você mora pode ir a leilão?','Defesa em execução bancária'],
+  ['Busca e apreensão de veículo: prazo de 5 dias para pagar e o que acontece depois','Busca e apreensão'],
+  ['Juros de consignado acima da média do Banco Central: quando cabe revisão','Revisional / consignado'],
+  ['Acordo com o banco dentro do processo: como funciona e o que conferir antes de assinar','Defesa em execução bancária'],
+  ['Golpe do falso advogado: o escritório nunca pede depósito para liberar valores','Cível em geral'],
+  ['PASEP: quem tem direito a diferenças e quais documentos separar','PASEP / Plano Collor']];
+function cPauta(){
+  const ps=S.pauta.slice().sort((a,b)=>(a.data||'9').localeCompare(b.data||'9'));
+  return `<div class="note"><b>Por que conteúdo.</b> A pessoa executada pelo banco procura na internet o que fazer. Um conteúdo claro, assinado pelo escritório, faz com que ela chegue até nós por iniciativa própria. O Provimento 205/2021 permite publicidade informativa, sóbria e sem promessa de resultado; impulsionar post é permitido, desde que o conteúdo não ofereça serviço nem estimule o litígio.</div>
+  <div class="row" style="justify-content:space-between"><span class="small muted">${ps.filter(p=>p.status==='Publicado').length} publicados · ${ps.filter(p=>p.status!=='Publicado').length} na fila</span><div class="row"><button class="btn" id="btnSug">Adicionar 10 temas sugeridos</button><button class="btn p" onclick="formPauta()">Novo tema</button></div></div>
+  <section class="card">${ps.length?`<div class="tw"><table><tr><th>Data</th><th>Tema</th><th>Assunto</th><th>Canal</th><th>Responsável</th><th>Situação</th><th class="n">Leads gerados</th></tr>${ps.map(p=>`<tr class="click" data-p="${p.id}"><td>${fd(p.data)}</td><td>${esc(p.tema)}</td><td>${esc(p.area)}</td><td>${esc(p.canal)}</td><td>${esc(nomeM(p.responsavel))}</td><td><span class="pill ${p.status==='Publicado'?'ok':p.status==='Revisão do advogado'?'warn':'n'}">${esc(p.status)}</span></td><td class="n">${S.leads.filter(l=>l.origem==='Instagram / site'&&l.pautaId===p.id).length||'–'}</td></tr>`).join('')}</table></div>`:'<p class="empty">Nenhum tema na pauta. Use os temas sugeridos para começar.</p>'}</section>`;
+}
+function formPauta(p={}){
+  abrirForm({titulo:p.id?'Editar tema':'Novo tema de conteúdo',fields:[{k:'tema',label:'Tema',full:true,req:true},{k:'area',label:'Assunto',type:'select',options:AREAS},{k:'canal',label:'Canal',type:'select',options:['Instagram','Site / blog','YouTube','WhatsApp (lista de clientes)','LinkedIn']},
+    {k:'data',label:'Data prevista',type:'date'},{k:'responsavel',label:'Responsável',type:'select',options:opM},{k:'status',label:'Situação',type:'select',options:['Ideia','Rascunho','Revisão do advogado','Publicado'],blank:false},{k:'link',label:'Link publicado',full:true}],
+    values:{status:'Ideia',responsavel:S.me||'',...p},apagar:p.id?async()=>salvar(()=>API.del('pauta',p.id),'Tema apagado'):null,
+    onSubmit:async v=>{const id=p.id||nid();const d={...p,...v};delete d.id;return salvar(()=>API.set('pauta',id,d),'Pauta salva')}});
+}
+function cRegras(){
+  return `<div class="grid g2"><div class="note ok"><b>Pode</b><ul>
+  <li>Atender quem procurou o escritório, por qualquer canal.</li><li>Avisar clientes da carteira sobre processos novos contra eles.</li>
+  <li>Publicar conteúdo jurídico informativo, inclusive impulsionado, sem oferta de serviço e sem promessa de resultado.</li>
+  <li>Pedir a clientes satisfeitos que indiquem o escritório, sem pagar nada por isso.</li><li>Manter site, perfil e WhatsApp Business com informação sóbria do escritório.</li></ul></div>
+  <div class="note bad"><b>Não pode</b><ul>
+  <li>Buscar processos de terceiros (por exemplo, pelas OABs de advogados de bancos) para abordar réus sem advogado e oferecer defesa. É captação de clientela vedada pelo art. 7º do Código de Ética e pelo Provimento 205/2021, e o TED da OAB costuma punir essa prática.</li>
+  <li>Mandar mensagem ou carta a quem não é cliente oferecendo ação ou defesa.</li><li>Pagar ou dar vantagem a quem indica clientes (corretor, despachante, servidor).</li>
+  <li>Prometer resultado, divulgar valores ganhos ou usar desconto como chamariz.</li><li>Usar dados pessoais de terceiros obtidos em consultas processuais para marketing (também fere a LGPD).</li></ul></div></div>
+  <p class="small muted">Fontes: Código de Ética e Disciplina da OAB, art. 7º e arts. 39 a 47-A; Provimento CFOAB 205/2021; Lei 13.709/2018.</p>`;
+}
+
+/* ---------- atendimento: roteiros por assunto ---------- */
+const CONDUTA=['Apresente-se e diga que é do escritório D\'Freire','Envie o alerta do golpe do falso advogado','Pergunte logo se há prazo correndo, prisão ou bloqueio de conta','Deixe a pessoa contar tudo antes de fazer as perguntas','Não prometa resultado, valor ou prazo de ganho','Confira conflito: a outra parte já é cliente do escritório?','Combine documentos e o próximo passo com data','Registre a ficha no mesmo dia'];
+const ROTEIROS={
+ 'Defesa em execução bancária':{p:['Já foi citado ou recebeu o oficial de justiça? Em que data?','Qual o documento cobrado: contrato, cédula de crédito bancário, cheque ou nota promissória?','Houve bloqueio de conta, salário ou penhora de bem? Quando?','O valor cobrado confere? Há parcelas pagas que não foram abatidas?','Existe avalista, fiador ou garantia (imóvel, veículo)?','O imóvel atingido é onde a família mora?','Tem interesse em acordo? Quanto consegue pagar por mês?','Qual a renda e as despesas da família (justiça gratuita e impenhorabilidade)?'],
+   d:['Mandado de citação ou intimação','Contrato ou título cobrado','Extratos bancários dos últimos 12 meses','Comprovantes de pagamento','Contracheque ou comprovante de renda','Matrícula do imóvel, se houver penhora'],
+   u:['Embargos à execução: 15 dias da juntada do mandado (CPC, art. 915)','Pagamento em 3 dias após a citação (CPC, art. 829)','Bloqueio via SISBAJUD: impugnação em 5 dias (CPC, art. 854, § 3º)']},
+ 'Busca e apreensão':{p:['O veículo já foi apreendido? Em que data?','Quantas parcelas foram pagas e quantas estão atrasadas?','Recebeu notificação de atraso antes da ação?','Onde o veículo está hoje?','Qual o valor da parcela e a taxa de juros do contrato?','Tem condição de quitar o saldo ou prefere negociar?'],
+   d:['Contrato de financiamento','Notificação extrajudicial recebida','Comprovantes das parcelas pagas','CRLV do veículo','Mandado ou auto de apreensão'],
+   u:['Pagar a integralidade da dívida em 5 dias da apreensão para reaver o bem (DL 911/69, art. 3º, § 2º)','Resposta em 15 dias da execução da liminar (DL 911/69, art. 3º, § 3º)']},
+ 'Revisional / consignado':{p:['Qual banco e qual tipo de contrato (consignado, cartão consignado, pessoal)?','Sabe a taxa de juros contratada?','Os descontos passam da margem consignável?','Recebeu cópia do contrato? Assinou fisicamente ou por aplicativo?','Aparece cartão de crédito consignado (RMC/RCC) que não pediu?','Há seguro ou tarifa embutida que não contratou?'],
+   d:['Contrato ou proposta','Extrato de empréstimos do INSS ou contracheques','Extratos bancários com os descontos','Documento pessoal e comprovante de residência'],u:[]},
+ 'PASEP / Plano Collor':{p:['Trabalhou no serviço público antes de 1988? Em qual órgão e período?','Já sacou o PASEP? Quando e quanto recebeu?','Quando percebeu que o valor estava baixo?','(Plano Collor) Tinha financiamento rural ativo em março de 1990? Com qual banco?','Já tem extratos ou microfilmagens da conta?'],
+   d:['Extrato e microfilmagem da conta PASEP','Comprovante de saque','Cédula rural e comprovantes de pagamento (Plano Collor)','Documento pessoal e comprovante de residência'],u:['Conferir prescrição a partir da ciência do desfalque (PASEP)']},
+ 'Servidor público':{p:['Qual o cargo, o ente (Estado ou Município) e o tipo de vínculo?','O que deixou de receber ou de ser concedido?','Desde quando?','Fez requerimento administrativo? Teve resposta?','O sindicato tem ação coletiva sobre o tema?'],
+   d:['Fichas financeiras','Ato de nomeação ou posse','Requerimento e resposta administrativa','Contracheques do período'],u:['Prescrição de 5 anos contra a Fazenda (Decreto 20.910/32)']},
+ 'Trabalhista':{p:['Qual o período trabalhado, a função e o salário?','Como e quando saiu da empresa?','Recebeu as verbas rescisórias? FGTS depositado?','Fazia horas extras? Havia controle de ponto?','Tem testemunhas e provas (mensagens, fotos)?'],
+   d:['CTPS','Termo de rescisão','Extrato do FGTS','Contracheques','Provas e contatos de testemunhas'],u:['Prazo de 2 anos após a saída para ajuizar (CF, art. 7º, XXIX)']},
+ 'Família':{p:['O assunto é alimentos, guarda, divórcio ou partilha?','Há filhos? Quais as idades?','Qual a renda de cada parte?','Já existe processo ou acordo anterior?','Quais bens existem?','Há situação de violência ou ameaça?'],
+   d:['Certidões de casamento e de nascimento dos filhos','Comprovantes de renda','Documentos dos bens','Decisões ou acordos anteriores'],u:['Violência doméstica: orientar medida protetiva e encaminhar no mesmo dia']},
+ 'Previdenciário':{p:['Qual benefício pretende?','Já pediu ao INSS? Qual o número e a data do indeferimento?','Tem laudos e exames atualizados (se for por incapacidade)?','Quanto tempo de contribuição tem?','Trabalhou em atividade rural ou especial?'],
+   d:['CNIS','Carta de indeferimento','Laudos e exames','CTPS e carnês'],u:[]},
+ 'Criminal':{p:['A pessoa é investigada, ré ou vítima?','Está presa? Desde quando e onde?','Qual a data dos fatos?','Recebeu intimação ou citação? Para quando?','Há número de inquérito ou processo?','Há medida protetiva envolvida?'],
+   d:['Intimação, mandado ou auto de prisão','Boletim de ocorrência','Documentos pessoais'],u:['Pessoa presa: encaminhar ao setor criminal imediatamente','Resposta à acusação: 10 dias da citação (CPP, art. 396)']},
+ 'Acordo em processo do cliente':{p:['Qual o número do processo?','O cliente aceita negociar? Qual o valor mínimo (ou máximo) aceitável?','Prefere à vista ou parcelado?','Há urgência financeira?','A procuração tem poderes para transigir e dar quitação?'],
+   d:['Autorização escrita do cliente','Procuração com poderes especiais'],u:[]},
+ 'Superendividamento':{p:['Qual a renda líquida mensal da família?','Quais são todas as dívidas (credor, saldo e parcela)?','Quanto custam as despesas básicas (moradia, alimentação, saúde)?','Alguma dívida tem garantia (imóvel, veículo), é financiamento imobiliário ou crédito rural?','Como as dívidas foram surgindo ao longo do tempo?','Já tentou renegociar (banco, Procon, Desenrola)?'],
+   d:['Contracheques ou extrato do benefício','Relatório Registrato do Banco Central','Contratos e faturas das dívidas','Lista das despesas mensais'],u:['Plano judicial de pagamento em até 5 anos (CDC, art. 104-A)','Dívidas com garantia real, financiamento imobiliário e crédito rural ficam fora da repactuação (CDC, art. 104-A, § 1º)']},
+ 'Plano de saúde':{p:['Qual a operadora e o tipo de plano (individual, coletivo por adesão ou empresarial)?','O que foi negado, cancelado ou reajustado, e quando?','Há pedido médico e laudo?','É urgência (internação, cirurgia, tratamento contínuo)?','A operadora deu a negativa por escrito ou um protocolo?','As mensalidades estão em dia?'],
+   d:['Carteirinha e contrato','Pedido médico e laudo','Negativa por escrito ou protocolo','Boletos ou comprovantes de pagamento'],u:['Urgência de saúde: avaliar pedido de tutela de urgência no mesmo dia (CPC, art. 300)','Pedir à operadora a negativa por escrito, com o motivo']},
+ 'Golpe Pix / fraude bancária':{p:['Quando foi a transferência (data e hora)?','Qual o valor e quais os bancos de origem e destino?','Já pediu a devolução (MED) no banco? Tem protocolo?','Fez boletim de ocorrência?','Como foi o golpe (falso atendente, falso advogado, link, clonagem)?','O banco respondeu ou bloqueou algo?'],
+   d:['Comprovante do Pix','Prints da conversa com o golpista','Boletim de ocorrência','Protocolo do pedido ao banco'],u:['Pedir o MED ao banco o quanto antes, pelos canais oficiais','Registrar boletim de ocorrência']},
+ 'Dívida rural / agro':{p:['Qual a atividade e a área explorada?','Quem é o credor e qual o título (cédula rural, CPR)?','O que causou a dificuldade (quebra de safra, preço, clima)?','Há laudo técnico ou comprovação da perda?','Já pediu prorrogação ou alongamento ao banco por escrito?','Já existe execução ou busca de bens?'],
+   d:['Cédulas e aditivos','Laudo agronômico ou declaração de perda','Notas de venda da produção','Pedido de prorrogação e resposta do banco'],u:['Pedir a prorrogação ao banco por escrito, antes do vencimento (Súmula 298 do STJ e Manual de Crédito Rural)']},
+ 'Consultoria empresarial / tributária':{p:['Qual a atividade e o regime tributário da empresa?','Qual o faturamento anual aproximado?','Vende mais para empresas ou para consumidor final?','Quem é o contador hoje?','Já decidiu como vai recolher IBS e CBS a partir de 2027?','Quais os contratos mais importantes da empresa?'],
+   d:['Contrato social','Últimas apurações ou DAS','Relação dos principais clientes e fornecedores'],u:['Optantes do Simples podem escolher recolher IBS e CBS por fora para o 2º semestre de 2027 até o fim de março de 2027 (Receita Federal)']},
+ 'Cível em geral':{p:['O que aconteceu e quando?','Quem é a outra parte?','Qual foi o prejuízo?','Que provas existem (contrato, notas, mensagens, fotos)?','Já reclamou na empresa, no Procon ou no consumidor.gov?'],
+   d:['Contrato ou nota fiscal','Comprovantes e prints','Protocolos de reclamação'],u:['Conferir prazo prescricional do caso']}};
+['Superendividamento','Plano de saúde','Golpe Pix / fraude bancária','Dívida rural / agro','Consultoria empresarial / tributária','Defesa em execução bancária','Busca e apreensão','Revisional / consignado','PASEP / Plano Collor','Servidor público','Trabalhista','Família','Previdenciário','Criminal','Cível em geral'].forEach(a=>{if(!AREAS.includes(a))AREAS.push(a)});
+if(!AREAS.includes('Acordo em processo do cliente'))AREAS.unshift('Acordo em processo do cliente');
+
+function vAtend(){
+  const ab=S.leads.filter(l=>!['Contratou','Não contratou'].includes(l.status));
+  let ls=S.f.at==='abertos'?ab:S.leads.slice();
+  ls.sort((a,b)=>(b.criadoEm||'').localeCompare(a.criadoEm||''));
+  return `<div class="top"><div><h1>Atendimento</h1><p>Cada atendimento vira uma ficha. Escreva o relato, siga as perguntas do assunto e peça ao app as possíveis estratégias.</p></div><button class="btn p" onclick="fichaAtendimento()">Novo atendimento</button></div>
+  <div class="tabs"><button data-at="abertos" class="${S.f.at==='abertos'?'on':''}">Em andamento (${ab.length})</button><button data-at="todos" class="${S.f.at==='todos'?'on':''}">Todos (${S.leads.length})</button></div>
+  ${ls.length?`<div class="cards">${ls.map(l=>{const urg=l.urgencia&&l.urgencia<=addDias(hoje(),5);
+    return `<button class="fc" data-fa="${l.id}"><div class="row" style="justify-content:space-between"><b>${esc(l.nome)}</b><span class="pill ${l.status==='Contratou'?'ok':l.status==='Não contratou'?'n':'info'}">${esc(l.status||'Novo')}</span></div>
+    <div class="small muted">${esc(l.area||'Assunto não definido')} · ${fd(l.criadoEm)} · ${esc(nomeM(l.responsavel))}</div>
+    <div class="small clip">${esc((l.relato||l.resumo||'Sem relato ainda').slice(0,140))}</div>
+    <div class="row" style="gap:6px">${urg?`<span class="pill bad">Prazo ${fd(l.urgencia)}</span>`:''}${l.analise?'<span class="pill ok">Estratégias analisadas</span>':''}${l.conflito?'':'<span class="pill warn">Conflito não checado</span>'}</div></button>`}).join('')}</div>`:'<div class="empty-big"><p>Nenhum atendimento aqui.</p><button class="btn p" onclick="fichaAtendimento()">Abrir a primeira ficha</button></div>'}`;
+}
+
+function mdLite(t){
+  return esc(t).split('\n').map(l=>{
+    l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    if(/^#{1,3}\s/.test(l))return `<h3>${l.replace(/^#{1,3}\s/,'')}</h3>`;
+    if(/^\s*[-•]\s/.test(l))return `<li>${l.replace(/^\s*[-•]\s/,'')}</li>`;
+    if(/^\s*\d+[.)]\s/.test(l))return `<li>${l.replace(/^\s*\d+[.)]\s/,'')}</li>`;
+    return l.trim()?`<p>${l}</p>`:'';}).join('').replace(/(<li>.*?<\/li>)+/g,m=>`<ul>${m}</ul>`);
+}
+
+function fichaAtendimento(l={}){
+  const novo=!l.id;let st={...{status:'Novo',responsavel:S.me||'',origem:'',area:'',respostas:{},conduta:{},criadoEm:hoje()},...l};
+  const id=l.id||nid();let ctrl=null;
+  const roteiro=()=>ROTEIROS[st.area];
+  const pergHtml=()=>{const r=roteiro();if(!r)return '<p class="small muted">Escolha o assunto para ver as perguntas e os documentos.</p>';
+    return `${r.u.length?`<div class="note bad small"><b>Prazos e urgências deste assunto</b><ul>${r.u.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+    <div class="qlist">${r.p.map((q,i)=>`<label class="q"><span>${esc(q)}</span><input data-q="${i}" value="${esc(st.respostas[i]||'')}" placeholder="Resposta"></label>`).join('')}</div>
+    <div class="small"><b>Documentos a pedir:</b> ${r.d.map(esc).join(' · ')}</div>`};
+  const cliOps=S.clientes.slice().sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(c=>`<option value="${c.id}" ${st.clienteId===c.id?'selected':''}>${esc(c.nome)}</option>`).join('');
+  abrirModal(`<header><h2>${novo?'Novo atendimento':'Atendimento: '+esc(l.nome)}</h2><button class="btn s" id="aX">Fechar</button></header>
+  <div class="ficha">
+   <div class="fcol">
+    <div class="form">
+      <label for="aCli">Já é cliente?<select id="aCli"><option value="">Não, pessoa nova</option>${cliOps}</select></label>
+      <label for="aNome">Nome<input id="aNome" value="${esc(st.nome||'')}"></label>
+      <label for="aTel">WhatsApp<input id="aTel" value="${esc(st.telefone||'')}" placeholder="(63) 99999-9999"></label>
+      <label for="aOri">Como chegou<select id="aOri"><option value="">Selecione</option>${LEAD_ORIGEM.map(o=>`<option ${st.origem===o?'selected':''}>${o}</option>`).join('')}</select></label>
+      <label class="full" for="aArea">Assunto<select id="aArea"><option value="">Selecione o assunto</option>${AREAS.map(o=>`<option ${st.area===o?'selected':''}>${o}</option>`).join('')}</select></label>
+      <label class="full" for="aRel">Relato do caso, nas palavras do cliente<textarea id="aRel" style="min-height:130px" placeholder="O que aconteceu, quando, com quem, o que a pessoa quer.">${esc(st.relato||'')}</textarea></label>
+    </div>
+    <div id="aPerg">${pergHtml()}</div>
+    <div class="form">
+      <label for="aUrg">Prazo urgente (se houver)<input id="aUrg" type="date" value="${esc(st.urgencia||'')}"></label>
+      <label for="aResp">Responsável<select id="aResp">${opM().map(([a,b])=>`<option value="${a}" ${st.responsavel===a?'selected':''}>${esc(b)}</option>`).join('')}</select></label>
+      <label for="aAdv">Advogado da área<input id="aAdv" value="${esc(st.advogado||'')}"></label>
+      <label for="aSt">Situação<select id="aSt">${LEAD_STATUS.map(o=>`<option ${st.status===o?'selected':''}>${o}</option>`).join('')}</select></label>
+      <label class="ck full"><input type="checkbox" id="aConf" ${st.conflito?'checked':''}> Conflito de interesse checado</label>
+    </div>
+   </div>
+   <div class="fcol">
+    <div class="guia"><h3>Como conduzir</h3>${CONDUTA.map((c,i)=>`<label class="ck"><input type="checkbox" data-cd="${i}" ${st.conduta[i]?'checked':''}> ${esc(c)}</label>`).join('')}</div>
+    <div class="guia"><div class="row" style="justify-content:space-between"><h3>Possíveis estratégias</h3><button class="btn p s" id="aIA" type="button">${st.analise?'Analisar de novo':'Analisar o caso'}</button></div>
+      <div id="aOut" class="analise">${st.analise?mdLite(st.analise):'<p class="small muted">Preencha o relato e as respostas e clique em Analisar. O app sugere teses, fundamentos, riscos, perguntas que faltam e documentos. É uma análise preliminar: quem decide a estratégia é o advogado da área.</p>'}</div></div>
+   </div>
+  </div>
+  <div class="row" style="justify-content:space-between"><div class="row"><button class="btn" id="aWa" type="button">Enviar boas-vindas no WhatsApp</button><button class="btn" id="aCad" type="button">Cadastrar como cliente</button></div>
+  <div class="row"><button class="btn" id="aCan" type="button">Cancelar</button><button class="btn p" id="aOk" type="button">Salvar ficha</button></div></div>`,m=>{
+    m.classList.add('wide');
+    const g=x=>m.querySelector(x);
+    const ler=()=>{st.clienteId=g('#aCli').value;st.nome=g('#aNome').value.trim();st.telefone=g('#aTel').value.trim();st.origem=g('#aOri').value;st.area=g('#aArea').value;st.relato=g('#aRel').value;
+      st.urgencia=g('#aUrg').value;st.responsavel=g('#aResp').value;st.advogado=g('#aAdv').value.trim();st.status=g('#aSt').value;st.conflito=g('#aConf').checked;
+      m.querySelectorAll('[data-q]').forEach(i=>st.respostas[i.dataset.q]=i.value);m.querySelectorAll('[data-cd]').forEach(i=>st.conduta[i.dataset.cd]=i.checked);return st};
+    g('#aArea').onchange=()=>{ler();st.respostas={};g('#aPerg').innerHTML=pergHtml()};
+    g('#aCli').onchange=()=>{const c=S.clientes.find(x=>x.id===g('#aCli').value);if(c){g('#aNome').value=c.nome||'';g('#aTel').value=c.telefone||'';g('#aOri').value='Cliente da carteira (novo caso)';g('#aConf').checked=true}};
+    const fechar=()=>{ctrl&&ctrl.abort();fecharModal()};
+    g('#aX').onclick=fechar;g('#aCan').onclick=fechar;
+    const gravar=async(msg)=>{ler();if(!st.nome){toast('Informe o nome.');g('#aNome').focus();return false}
+      if(st.status==='Contratou'&&!st.conflito){toast('Marque a checagem de conflito antes de contratar.');return false}
+      const doc={...st,atualizadoEm:hoje()};if(st.status==='Contratou'&&!doc.contratouEm)doc.contratouEm=hoje();delete doc.id;
+      const ok=await salvar(()=>API.set('leads',id,doc),msg);if(ok)st.id=id;return ok};
+    g('#aOk').onclick=async()=>{if(await gravar('Ficha salva'))fechar()};
+    g('#aWa').onclick=async()=>{ler();if(!st.telefone){toast('Informe o WhatsApp.');return}await gravar();abrirWhats('',`boasvindas`,{nome:st.nome,telefone:st.telefone})};
+    g('#aCad').onclick=async()=>{ler();if(!(await gravar()))return;if(st.clienteId){toast('Essa pessoa já está cadastrada.');return}
+      formCliente({nome:st.nome,telefone:st.telefone,origem:st.origem,obs:st.area?('Primeiro atendimento: '+st.area):''},cid=>salvar(()=>API.upd('leads',id,{clienteId:cid})))};
+    g('#aIA').onclick=async()=>{ler();
+      if(!S.sample){g('#aOut').innerHTML='<p class="small">A análise automática por IA não está disponível nesta versão do site. Preencha a ficha normalmente.</p>';return}
+      if((st.relato||'').trim().length<40){toast('Escreva um relato um pouco maior para a análise.');g('#aRel').focus();return}
+      const r=roteiro();const resp=r?r.p.map((q,i)=>st.respostas[i]?`- ${q} ${st.respostas[i]}`:'').filter(Boolean).join('\n'):'';
+      const prompt=`Você é advogado brasileiro sênior, com prática em contencioso cível, bancário, fazendário, trabalhista, previdenciário, família e criminal, ajudando o atendente de um escritório de advocacia em Palmas/TO a fazer o primeiro atendimento.
+
+Analise o caso abaixo e responda em português, em texto simples, com estes títulos, nesta ordem, cada um começando com "## ":
+## Resumo do caso (3 a 4 linhas)
+## Urgências e prazos (prazos processuais que podem estar correndo, com o dispositivo legal; se não houver, diga isso)
+## Possíveis estratégias (de 2 a 4; para cada uma: a tese em uma linha, o fundamento legal, o que favorece, o risco principal)
+## Chance de acordo (se cabe acordo, com quem negociar e uma faixa razoável quando houver valores)
+## Perguntas que ainda faltam fazer ao cliente
+## Documentos a pedir
+## Encaminhamento (área e o que o advogado deve olhar primeiro)
+
+Regras: cite só leis, artigos, súmulas e temas repetitivos que você tem certeza que existem e estão em vigor; se não tiver certeza, escreva "conferir jurisprudência atual do STJ/TJTO" em vez de inventar número. Não prometa resultado. Use frases curtas, listas com "- ", sem travessões. Se faltar informação, diga o que falta em vez de supor.
+
+Assunto informado: ${st.area||'não informado'}
+Relato: ${st.relato}
+${resp?'Respostas já colhidas:\n'+resp:''}
+${st.urgencia?'Prazo urgente informado: '+fd(st.urgencia):''}`;
+      ctrl=new AbortController();const b=g('#aIA');b.disabled=true;b.textContent='Analisando…';g('#aOut').innerHTML='<p class="small muted">Lendo o caso…</p>';
+      try{const res=await S.sample(prompt,{modelTier:'complex',signal:ctrl.signal,cache:false,onText:({text})=>{g('#aOut').innerHTML=mdLite(text)}});
+        st.analise=res.text;g('#aOut').innerHTML=mdLite(res.text);await gravar('Análise salva na ficha')}
+      catch(e){if(e&&e.name==='AbortError')return;g('#aOut').innerHTML=`<p class="small">${e&&e.code==='rate_limited'?'Muitas análises seguidas. Aguarde um minuto e tente de novo.':e&&e.code==='not_granted'?'A análise automática não foi autorizada nesta conta.':'Não foi possível analisar agora. Tente de novo em instantes.'}</p>`}
+      finally{b.disabled=false;b.textContent='Analisar de novo'}};
+  });
+}
+
+/* ---------- clientes ---------- */
+function vClientes(){
+  const q=(S.f.busca||'').toLowerCase();
+  let cs=S.clientes.filter(c=>!q||[c.nome,c.cpf,c.telefone,c.cidade].join(' ').toLowerCase().includes(q)).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  return `<div class="top"><div><h1>Clientes</h1><p>Cadastro dos clientes do setor. Pelo telefone, o app abre o WhatsApp com a mensagem pronta.</p></div><button class="btn p" onclick="formCliente()">Novo cliente</button></div>
+  <div class="filters"><input id="fBusca" type="search" placeholder="Buscar por nome, CPF, telefone ou cidade" value="${esc(S.f.busca)}" style="min-width:280px"><span class="small muted">${cs.length} de ${S.clientes.length}</span></div>
+  <section class="card">${cs.length?`<div class="tw"><table><tr><th>Nome</th><th>WhatsApp</th><th>Cidade</th><th class="n">Acordos</th><th>Último contato</th><th></th></tr>
+  ${cs.map(c=>{const casos=S.casos.filter(k=>k.clienteId===c.id||(!k.clienteId&&(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()));
+    const ult=S.contatos.filter(k=>k.clienteId===c.id||(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()).map(k=>k.data).sort().pop();
+    return `<tr class="click" data-cli="${c.id}"><td><b>${esc(c.nome)}</b>${c.consentimento?'':'<div class="small muted">Sem autorização para mensagens</div>'}</td><td>${esc(c.telefone||'–')}</td><td>${esc([c.cidade,c.uf].filter(Boolean).join('/'))}</td><td class="n">${casos.length}</td><td>${fd(ult)}</td>
+    <td>${c.telefone?`<button class="btn s wa" data-wa="${c.id}">WhatsApp</button>`:''}</td></tr>`}).join('')}</table></div>`:'<div class="empty-big"><p>Nenhum cliente cadastrado.</p><button class="btn p" onclick="formCliente()">Cadastrar o primeiro</button></div>'}</section>`;
+}
+const UFS='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
+function formCliente(c={},depois){
+  const novo=!c.id;
+  const fields=[{k:'s0',type:'sec',label:'Identificação'},{k:'nome',label:'Nome completo',req:true,full:true},{k:'cpf',label:'CPF ou CNPJ'},{k:'rg',label:'RG'},{k:'nascimento',label:'Nascimento',type:'date'},
+    {k:'estadoCivil',label:'Estado civil',type:'select',options:['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)']},{k:'profissao',label:'Profissão'},
+    {k:'s1',type:'sec',label:'Contato'},{k:'telefone',label:'WhatsApp',req:true,ph:'(63) 99999-9999'},{k:'telefone2',label:'Outro telefone'},{k:'email',label:'E-mail',type:'email'},
+    {k:'consentimento',label:'Cliente autorizou receber mensagens do escritório pelo WhatsApp (LGPD)',type:'check',full:true},
+    {k:'s2',type:'sec',label:'Endereço'},{k:'cep',label:'CEP'},{k:'endereco',label:'Rua, número, bairro',full:true},{k:'cidade',label:'Cidade'},{k:'uf',label:'UF',type:'select',options:UFS},
+    {k:'s3',type:'sec',label:'Relação com o escritório'},{k:'origem',label:'Como chegou',type:'select',options:LEAD_ORIGEM},{k:'advogado',label:'Advogado responsável'},
+    {k:'obs',label:'Observações',type:'textarea',full:true}];
+  abrirForm({titulo:novo?'Novo cliente':c.nome,fields,values:{uf:'TO',consentimento:true,...c},
+    extra:novo?'':fichaCliente(c),apagar:novo||!isGestor()?null:async()=>salvar(()=>API.del('clientes',c.id),'Cliente apagado'),
+    onSubmit:async v=>{const tel=soDig(v.telefone);if(tel.length<10){toast('Confira o WhatsApp com DDD.');return false}
+      const id=c.id||nid();const d={...c,...v,atualizadoEm:hoje()};if(novo)d.criadoEm=hoje();delete d.id;
+      const ok=await salvar(()=>API.set('clientes',id,d),novo?'Cliente cadastrado':'Cadastro atualizado');if(ok&&depois)await depois(id);return ok}});
+  if(!novo){const m=$('#layer .modal');m.querySelectorAll('[data-wa2]').forEach(b=>b.onclick=()=>{fecharModal();abrirWhats(c.id,b.dataset.wa2)})}
+}
+function fichaCliente(c){
+  const casos=S.casos.filter(k=>k.clienteId===c.id||(!k.clienteId&&(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()));
+  const cts=S.contatos.filter(k=>k.clienteId===c.id||(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()).sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,6);
+  return `<div class="guia"><h3>Mensagens rápidas</h3><div class="row">${Object.entries(MODELOS).map(([k,v])=>`<button class="btn s" type="button" data-wa2="${k}">${esc(v[0])}</button>`).join('')}</div></div>
+  <div class="grid g2"><div><h3>Acordos</h3>${casos.length?`<div class="list">${casos.map(k=>`<div class="item"><div class="b"><div class="t">${esc(k.contraparte)}</div><div class="small muted">${esc(ETAPAS[ETAPA_IDX[k.etapa]||0][1])}${k.processo?' · '+esc(k.processo):''}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</div>
+  <div><h3>Últimos contatos</h3>${cts.length?`<div class="list">${cts.map(k=>`<div class="item"><div class="b"><div class="small muted">${fd(k.data)} · ${esc(k.canal)}</div><div class="small">${esc(k.resumo)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</div></div>`;
+}
+
+/* ---------- WhatsApp ---------- */
+const soDig=s=>String(s||'').replace(/\D/g,'');
+const foneWa=s=>{let d=soDig(s);if(d.startsWith('0'))d=d.slice(1);if(d.length<=11)d='55'+d;return d};
+const MODELOS={
+  boasvindas:['Boas-vindas e alerta de golpe','Olá, {nome}! Aqui é {atendente}, do escritório D\'Freire Advocacia. Seja bem-vindo(a). Este é o nosso canal oficial.\n\nImportante: o escritório nunca pede depósito, Pix ou qualquer pagamento para liberar valores de processo. Se receber mensagem assim, mesmo com nosso nome ou foto, não pague e fale com a gente por este número.'],
+  documentos:['Pedido de documentos','Olá, {nome}! Para darmos andamento ao seu caso, precisamos de: {documentos}.\n\nPode mandar fotos legíveis por aqui mesmo. Qualquer dúvida, estou à disposição.'],
+  audiencia:['Lembrete de audiência','Olá, {nome}! Lembrete: sua audiência de conciliação do processo {processo} está marcada para {data}. Antes dela, vamos conversar para alinhar a proposta. Qual o melhor horário para ligarmos?'],
+  proposta:['Proposta de acordo recebida','Olá, {nome}! Recebemos uma proposta de acordo no processo {processo}. Queremos explicar os detalhes antes de qualquer decisão. Podemos ligar hoje?'],
+  parcela:['Parcela do acordo paga','Olá, {nome}! Confirmamos o pagamento de mais uma parcela do acordo no processo {processo}. Seguimos acompanhando as próximas.'],
+  retorno:['Retorno combinado','Olá, {nome}! Conforme combinado, estou retornando sobre o seu caso. Podemos conversar agora?'],
+  andamento:['Andamento do processo','Olá, {nome}! Passando para informar o andamento do processo {processo}: {texto}'],
+  aniversario:['Aniversário','Olá, {nome}! Toda a equipe do escritório D\'Freire deseja a você um feliz aniversário. Conte sempre com a gente.']};
+function preencher(t,v){return t.replace(/\{(\w+)\}/g,(m,k)=>v[k]||({documentos:'[liste os documentos]',texto:'[descreva o andamento]',processo:'[número do processo]',data:'[data]'}[k]||m))}
+function abrirWhats(cid,modelo,extra={},msgKey){
+  const c=S.clientes.find(x=>x.id===cid)||{};const dados={atendente:(membro(S.me)?.nome||'').split(' ')[0]||'a equipe',...extra,nome:(extra.nome||c.nome||'').split(' ')[0]};
+  const tel=extra.telefone||c.telefone||'';
+  if(c.id&&c.consentimento===false){toast('Este cliente não autorizou mensagens pelo WhatsApp.');return}
+  abrirModal(`<header><h2>WhatsApp para ${esc(extra.nome||c.nome||'cliente')}</h2><button class="btn s" id="wX">Fechar</button></header>
+   <div class="form"><label for="wTel">Número<input id="wTel" value="${esc(tel)}"></label><label for="wMod">Modelo<select id="wMod">${Object.entries(MODELOS).map(([k,v])=>`<option value="${k}" ${k===modelo?'selected':''}>${esc(v[0])}</option>`).join('')}</select></label>
+   <label class="full" for="wTxt">Mensagem (pode editar)<textarea id="wTxt" style="min-height:170px"></textarea></label></div>
+   <p class="small muted">Ao clicar, o WhatsApp abre com a mensagem pronta; é só apertar enviar. O envio fica registrado como contato.</p>
+   <div class="row" style="justify-content:flex-end"><button class="btn" id="wCp" type="button">Copiar texto</button><a class="btn p" id="wGo" target="_blank" rel="noopener" href="#">Abrir no WhatsApp</a></div>`,m=>{
+    const g=x=>m.querySelector(x);const upd=()=>{g('#wGo').href=`https://wa.me/${foneWa(g('#wTel').value)}?text=${encodeURIComponent(g('#wTxt').value)}`};
+    const setM=()=>{g('#wTxt').value=preencher(MODELOS[g('#wMod').value][1],dados);upd()};
+    g('#wMod').onchange=setM;g('#wTxt').oninput=upd;g('#wTel').oninput=upd;setM();
+    g('#wX').onclick=fecharModal;
+    g('#wCp').onclick=async()=>{try{await navigator.clipboard.writeText(g('#wTxt').value);toast('Texto copiado')}catch(e){g('#wTxt').select()}};
+    g('#wGo').addEventListener('click',async()=>{if(soDig(g('#wTel').value).length<10){toast('Confira o número com DDD.');return}
+      const mod=g('#wMod').value;
+      await salvar(()=>API.set('contatos',nid(),{data:hoje(),membroId:S.me||'',uid:S.uid||'',clienteId:c.id||'',cliente:extra.nome||c.nome||'',processo:extra.processo||'',canal:'WhatsApp',interlocutor:'Cliente',resultado:'Cliente orientado',resumo:'Mensagem enviada: '+MODELOS[mod][0],casoId:extra.casoId||'',criadoEm:Date.now()}));
+      if(msgKey)await marcarMsg(msgKey,true);
+      setTimeout(fecharModal,300)});
+  });
+}
+function mensagensDoDia(){
+  const h=hoje(),out=[],feito=new Set(S.msgs.map(m=>m.id));
+  const cliDe=k=>S.clientes.find(c=>c.id===k.clienteId)||S.clientes.find(c=>(c.nome||'').toLowerCase()===(k.cliente||'').toLowerCase());
+  S.casos.filter(k=>casoAberto(k)&&k.audiencia&&k.audiencia>=h&&k.audiencia<=addDias(h,2)&&(!S.me||k.responsavel===S.me)).forEach(k=>{const c=cliDe(k);
+    out.push({key:`aud_${k.id}_${k.audiencia}`,cli:c,modelo:'audiencia',titulo:`Lembrar ${k.cliente} da audiência de ${fd(k.audiencia)}`,extra:{nome:k.cliente,processo:k.processo,data:fd(k.audiencia),casoId:k.id}})});
+  S.clientes.filter(c=>c.nascimento&&c.nascimento.slice(5)===h.slice(5)).forEach(c=>out.push({key:`niver_${c.id}_${h.slice(0,4)}`,cli:c,modelo:'aniversario',titulo:`Aniversário de ${c.nome}`,extra:{}}));
+  S.clientes.filter(c=>c.criadoEm&&c.criadoEm>=addDias(h,-7)).forEach(c=>out.push({key:`bv_${c.id}`,cli:c,modelo:'boasvindas',titulo:`Boas-vindas para ${c.nome}, cadastrado em ${fd(c.criadoEm)}`,extra:{}}));
+  return out.filter(x=>!feito.has(x.key));
+}
+async function marcarMsg(key,silencioso){await salvar(()=>API.set('msgs',key,{em:hoje(),por:S.me||''}),silencioso?null:'Marcada como enviada')}
+
+/* ---------- meu dia (diário de atividades) ---------- */
+const TIPOS_AT=['Ligação','WhatsApp','Atendimento presencial','E-mail','Minuta / petição','Análise de processo','Reunião','Audiência','Pesquisa','Organização e arquivo','Outro'];
+const JORNADA_MIN=480;
+const min2h=m=>{m=Math.round(m||0);return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0')};
+const hm2min=s=>{const [h,m]=String(s||'').split(':').map(Number);return isFinite(h)?h*60+(m||0):null};
+const diaDoc=(mid,d)=>S.atividades.find(x=>x.id===`${mid}_${d}`);
+function itensDia(mid,d){return (diaDoc(mid,d)?.itens||[]).slice().sort((a,b)=>(a.ini||'').localeCompare(b.ini||''))}
+const minDia=(mid,d)=>itensDia(mid,d).reduce((s,i)=>s+(+i.min||0),0);
+const AVISO_MON='O setor confere estes registros com o histórico do WhatsApp e do telefone corporativos, só por quantidade de mensagens e ligações por dia, sem ler o conteúdo das conversas. Use apenas os canais corporativos para falar com clientes e contrapartes.';
+function vDiario(){
+  const mid=S.f.diaM&&isGestor()?S.f.diaM:S.me;
+  if(!mid)return `<div class="top"><div><h1>Meu dia</h1><p>Escolha seu nome na barra lateral para registrar suas atividades.</p></div></div>`;
+  const d=S.f.dia||hoje(),its=itensDia(mid,d),tot=minDia(mid,d),cts=S.contatos.filter(c=>c.membroId===mid&&c.data===d);
+  const ult=its.length?its[its.length-1].fim:'';const agora=new Date().toTimeString().slice(0,5);
+  const proprio=mid===S.me;
+  return `<div class="top"><div><h1>${proprio?'Meu dia':'Dia de '+esc(nomeM(mid))}</h1><p>Registre o que fez ao longo do dia. Leva menos de 20 segundos por atividade.</p></div>
+    <div class="row">${isGestor()?`<select id="fDiaM" class="btn">${opM().map(([a,b])=>`<option value="${a}" ${mid===a?'selected':''}>${esc(b)}</option>`).join('')}</select>`:''}<input type="date" id="fDia" class="btn" value="${d}"><button class="btn" id="btnCopDia">Copiar relatório do dia</button></div></div>
+  <div class="note small">${AVISO_MON}</div>
+  <div class="tiles"><div class="tile"><div class="k">Horas registradas</div><div class="v">${min2h(tot)}</div><div class="bar ${tot>=JORNADA_MIN?'ok':''}" style="margin-top:6px"><i style="width:${Math.min(100,tot/JORNADA_MIN*100)}%"></i></div><div class="s">de 8h00 de jornada</div></div>
+    <div class="tile"><div class="k">Atividades</div><div class="v">${its.length}</div></div>
+    <div class="tile"><div class="k">Contatos registrados</div><div class="v">${cts.length}</div><div class="s">entram no relatório automaticamente</div></div></div>
+  ${proprio?`<section class="card"><header><h2>Nova atividade</h2></header>
+  <div class="form" id="frmAt"><label for="atIni">Início<input id="atIni" type="time" value="${ult||'08:00'}"></label><label for="atFim">Fim<input id="atFim" type="time" value="${agora>(ult||'08:00')?agora:''}"></label>
+    <label for="atTipo">Tipo<select id="atTipo">${TIPOS_AT.map(t=>`<option>${t}</option>`).join('')}</select></label><label for="atRef">Cliente ou processo<input id="atRef" placeholder="Opcional"></label>
+    <label class="full" for="atDesc">O que foi feito<input id="atDesc" placeholder="Ex.: liguei para o preposto do Banco do Brasil e enviei a 1ª proposta"></label></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn p" id="btnAddAt">Registrar atividade</button></div></section>`:''}
+  <section class="card"><header><h2>${fd(d)}</h2></header>
+  ${its.length||cts.length?`<div class="list">${its.map((i,k)=>`<div class="item"><span class="stripe info"></span><div class="b"><div class="t">${esc(i.ini)} às ${esc(i.fim)} · ${esc(i.tipo)} <span class="muted small">(${min2h(i.min)})</span></div><div class="small">${esc(i.desc)}${i.ref?' · '+esc(i.ref):''}</div></div>${proprio?`<button class="btn s d" data-atdel="${k}">Apagar</button>`:''}</div>`).join('')}
+  ${cts.map(c=>`<div class="item"><span class="stripe"></span><div class="b"><div class="small muted">Contato registrado · ${esc(c.canal)} · ${esc(c.interlocutor)}</div><div class="small">${esc(c.cliente||'')}: ${esc(c.resumo)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nada registrado neste dia.</p>'}</section>`;
+}
+async function addAtividade(){
+  const g=x=>$(x);const ini=g('#atIni').value,fim=g('#atFim').value,desc=g('#atDesc').value.trim();
+  if(!ini||!fim||!desc){toast('Preencha início, fim e o que foi feito.');return}
+  document.activeElement&&document.activeElement.blur();
+  const m=hm2min(fim)-hm2min(ini);if(m<=0){toast('O fim precisa ser depois do início.');return}
+  const d=S.f.dia||hoje(),id=`${S.me}_${d}`,cur=diaDoc(S.me,d);
+  const itens=[...(cur?.itens||[]),{ini,fim,min:m,tipo:g('#atTipo').value,desc,ref:g('#atRef').value.trim(),ts:Date.now()}];
+  if(await salvar(()=>API.set('atividades',id,{membroId:S.me,data:d,itens,atualizadoTs:Date.now()}),'Atividade registrada')){}
+}
+async function delAtividade(k){
+  const d=S.f.dia||hoje(),its=itensDia(S.me,d);its.splice(k,1);
+  await salvar(()=>API.set('atividades',`${S.me}_${d}`,{membroId:S.me,data:d,itens:its,atualizadoTs:Date.now()}),'Atividade apagada');
+}
+function textoDia(mid,d){
+  const its=itensDia(mid,d),cts=S.contatos.filter(c=>c.membroId===mid&&c.data===d);
+  return `RELATÓRIO DE ATIVIDADES\n${nomeM(mid)} · ${fd(d)} · ${min2h(minDia(mid,d))} registradas\n\n`+its.map((i,k)=>`${k+1}. ${i.ini} às ${i.fim} (${min2h(i.min)}) · ${i.tipo}: ${i.desc}${i.ref?' ('+i.ref+')':''}`).join('\n')+
+    (cts.length?`\n\nContatos registrados (${cts.length}):\n`+cts.map(c=>`- ${c.canal} com ${c.interlocutor}${c.cliente?' ('+c.cliente+')':''}: ${c.resumo}`).join('\n'):'');
+}
+
+/* ---------- conferência com canais corporativos ---------- */
+function confDia(mid,d){const c=S.conferencia.find(x=>x.id===`${mid}_${d}`);if(!c)return null;
+  const wa=Object.values(c.wa||{}),lg=Object.values(c.lig||{});
+  return {msgs:wa.reduce((s,x)=>s+(x.msgs||0),0),conversas:wa.filter(x=>x.msgs>0).length,lig:lg.reduce((s,x)=>s+(x.qtd||0),0),seg:lg.reduce((s,x)=>s+(x.seg||0),0)}}
+function vConf(){
+  if(!isGestor())return `<div class="top"><div><h1>Conferência</h1><p>Área da coordenação.</p></div></div>`;
+  const dias=[...Array(14)].map((_,i)=>addDias(hoje(),-i)).filter(d=>{const w=new Date(d+'T12:00').getDay();return w!==0&&w!==6});
+  const ps=ativos().filter(m=>m.papel==='integrante'||S.f.confTodos);
+  const linha=(m,d)=>{const c=confDia(m.id,d),min=minDia(m.id,d),its=itensDia(m.id,d),cts=S.contatos.filter(x=>x.membroId===m.id&&x.data===d).length;
+    const regCom=cts+its.filter(i=>['Ligação','WhatsApp','E-mail'].includes(i.tipo)).length;
+    const canal=c?c.conversas+c.lig:0;
+    let st='<span class="pill n">Sem dados dos canais</span>';
+    if(c){st=canal>0&&regCom===0?'<span class="pill bad">Atividade sem registro</span>':canal>regCom*2+3?'<span class="pill warn">Registro abaixo do real</span>':'<span class="pill ok">Compatível</span>'}
+    else if(!min&&!cts)st='<span class="pill warn">Nada registrado</span>';
+    return `<tr class="click" data-cdia="${m.id}|${d}"><td>${fd(d)}</td><td>${esc(m.nome)}</td><td class="n">${min2h(min)}</td><td class="n">${its.length}</td><td class="n">${cts}</td><td class="n">${c?c.msgs:'–'}</td><td class="n">${c?c.conversas:'–'}</td><td class="n">${c?c.lig:'–'}</td><td class="n">${c?min2h(c.seg/60):'–'}</td><td>${st}</td></tr>`};
+  return `<div class="top"><div><h1>Conferência de atividades</h1><p>Compara o que cada pessoa registrou com o volume real de mensagens e ligações dos canais corporativos. Dias úteis das últimas 2 semanas.</p></div>
+    <div class="row"><button class="btn" id="btnImpWa">Importar conversas do WhatsApp</button><button class="btn" id="btnImpLig">Importar registro de ligações</button></div></div>
+  <div class="note small"><b>Como funciona.</b> No WhatsApp Business do setor, abra a conversa, toque em Mais e depois em Exportar conversa, sem mídia, e importe o arquivo .txt aqui (pode selecionar vários de uma vez). Para ligações, exporte o relatório do PABX ou da operadora em CSV. O app lê o arquivo no seu navegador e grava só a contagem por dia; o texto das conversas não é guardado.
+  <ul><li>Vale só para números e linhas corporativos, nunca para o celular pessoal.</li><li>A equipe precisa ser avisada por escrito (política de uso dos canais), e o aviso já aparece para eles na tela Meu dia.</li></ul></div>
+  <section class="card"><div class="tw"><table><tr><th>Dia</th><th>Pessoa</th><th class="n">Horas no diário</th><th class="n">Atividades</th><th class="n">Contatos</th><th class="n">Mensagens enviadas</th><th class="n">Conversas</th><th class="n">Ligações</th><th class="n">Tempo ao telefone</th><th>Situação</th></tr>
+  ${dias.flatMap(d=>ps.map(m=>linha(m,d))).join('')}</table></div></section>`;
+}
+function detalheConf(mid,d){
+  abrirModal(`<header><h2>${esc(nomeM(mid))} · ${fd(d)}</h2><button class="btn s" onclick="fecharModal()">Fechar</button></header><pre class="pre">${esc(textoDia(mid,d))}</pre>
+  ${(()=>{const c=S.conferencia.find(x=>x.id===`${mid}_${d}`);if(!c)return '<p class="small muted">Sem dados importados dos canais para este dia.</p>';
+    return `<h3>Canais corporativos</h3><div class="list">${Object.entries(c.wa||{}).map(([k,v])=>`<div class="item"><div class="b small">WhatsApp, conversa "${esc(v.nome||k)}": ${v.msgs} mensagens enviadas</div></div>`).join('')}${Object.entries(c.lig||{}).map(([k,v])=>`<div class="item"><div class="b small">Ligações (${esc(v.nome||k)}): ${v.qtd}, ${min2h(v.seg/60)}</div></div>`).join('')}</div>`})()}`);
+}
+const RX_WA=[/^\[?(\d{1,2})\/(\d{1,2})\/(\d{2,4}),? (\d{1,2}):(\d{2})(?::\d{2})?\]? (?:- )?([^:]{1,60}): /];
+function parseWa(txt){const out=[];txt.replace(/[‎‏‪-‮]/g,'').split(/\r?\n/).forEach(l=>{for(const r of RX_WA){const m=l.match(r);if(m){let y=+m[3];if(y<100)y+=2000;out.push({d:`${y}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`,who:m[6].trim()});break}}});return out}
+function importarWa(){
+  abrirModal(`<header><h2>Importar conversas do WhatsApp corporativo</h2><button class="btn s" id="iX">Fechar</button></header>
+  <div class="form"><label for="iM">De quem é o WhatsApp<select id="iM">${opM().map(([a,b])=>`<option value="${a}">${esc(b)}</option>`).join('')}</select></label>
+  <label for="iF">Arquivos .txt exportados<input id="iF" type="file" accept=".txt,text/plain" multiple></label>
+  <label class="full" for="iS">Nome da conta corporativa como aparece nas conversas<select id="iS"><option value="">Selecione os arquivos primeiro</option></select></label></div>
+  <p class="small muted" id="iInfo"></p><div class="row" style="justify-content:flex-end"><button class="btn p" id="iOk" disabled>Importar contagens</button></div>`,m=>{
+    const g=x=>m.querySelector(x);let lidos=[];g('#iX').onclick=fecharModal;
+    g('#iF').onchange=async e=>{lidos=[];const cnt={};for(const f of e.target.files){const msgs=parseWa(await f.text());lidos.push({nome:f.name.replace(/\.txt$/i,'').replace(/^Conversa do WhatsApp com /i,''),msgs});msgs.forEach(x=>cnt[x.who]=(cnt[x.who]||0)+1)}
+      const ops=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);g('#iS').innerHTML=ops.map(([w,n])=>`<option value="${esc(w)}">${esc(w)} (${n} mensagens)</option>`).join('')||'<option value="">Nenhuma mensagem reconhecida</option>';
+      g('#iInfo').textContent=`${lidos.length} conversa(s) lida(s), ${lidos.reduce((s,x)=>s+x.msgs.length,0)} mensagens no total. Escolha qual nome é a conta do escritório.`;g('#iOk').disabled=!ops.length};
+    g('#iOk').onclick=async()=>{const mid=g('#iM').value,who=g('#iS').value;if(!mid||!who)return;const por={};
+      lidos.forEach(c=>{const key='wa_'+c.nome.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,60);c.msgs.filter(x=>x.who===who).forEach(x=>{por[x.d]=por[x.d]||{};por[x.d][key]=por[x.d][key]||{nome:c.nome,msgs:0};por[x.d][key].msgs++})});
+      await gravarConf(mid,por,'wa');fecharModal()};
+  });
+}
+function parseCsv(t){const sep=(t.split('\n')[0].match(/;/g)||[]).length>(t.split('\n')[0].match(/,/g)||[]).length?';':',';
+  return t.split(/\r?\n/).filter(l=>l.trim()).map(l=>{const o=[];let c='',q=false;for(const ch of l){if(ch==='"'){q=!q}else if(ch===sep&&!q){o.push(c);c=''}else c+=ch}o.push(c);return o.map(x=>x.trim())})}
+function dataBr(s){s=String(s||'');let m=s.match(/(\d{4})-(\d{2})-(\d{2})/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;m=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}return null}
+function segs(s){s=String(s||'').trim();if(/^\d+$/.test(s))return +s;const p=s.split(':').map(Number);if(p.length===3)return p[0]*3600+p[1]*60+p[2];if(p.length===2)return p[0]*60+p[1];return 0}
+function importarLig(){
+  abrirModal(`<header><h2>Importar registro de ligações</h2><button class="btn s" id="iX">Fechar</button></header>
+  <div class="form"><label for="iM">De quem é a linha ou ramal<select id="iM">${opM().map(([a,b])=>`<option value="${a}">${esc(b)}</option>`).join('')}</select></label>
+  <label for="iF">Arquivo CSV<input id="iF" type="file" accept=".csv,text/csv"></label>
+  <label for="iD">Coluna da data<select id="iD"></select></label><label for="iT">Coluna da duração<select id="iT"></select></label></div>
+  <p class="small muted" id="iInfo"></p><div class="row" style="justify-content:flex-end"><button class="btn p" id="iOk" disabled>Importar contagens</button></div>`,m=>{
+    const g=x=>m.querySelector(x);let rows=[],nome='';g('#iX').onclick=fecharModal;
+    g('#iF').onchange=async e=>{const f=e.target.files[0];if(!f)return;nome=f.name;rows=parseCsv(await f.text());const h=rows[0]||[];
+      const op=h.map((x,i)=>`<option value="${i}">${esc(x||'Coluna '+(i+1))}</option>`).join('');g('#iD').innerHTML=op;g('#iT').innerHTML='<option value="">Sem duração</option>'+op;
+      const di=h.findIndex(x=>/data|date|in[ií]cio/i.test(x)),ti=h.findIndex(x=>/dura|tempo|seg/i.test(x));if(di>=0)g('#iD').value=di;if(ti>=0)g('#iT').value=ti;
+      g('#iInfo').textContent=`${rows.length-1} linhas no arquivo. Confira as colunas.`;g('#iOk').disabled=false};
+    g('#iOk').onclick=async()=>{const mid=g('#iM').value,di=+g('#iD').value,ti=g('#iT').value;const por={},key='lig_'+nome.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,60);let ok=0;
+      rows.slice(1).forEach(r=>{const d=dataBr(r[di]);if(!d)return;ok++;por[d]=por[d]||{};por[d][key]=por[d][key]||{nome,qtd:0,seg:0};por[d][key].qtd++;if(ti!=='')por[d][key].seg+=segs(r[+ti])});
+      if(!ok){toast('Não reconheci datas nessa coluna.');return}await gravarConf(mid,por,'lig');fecharModal()};
+  });
+}
+async function gravarConf(mid,por,campo){
+  const dias=Object.keys(por);let n=0;
+  for(const d of dias){const id=`${mid}_${d}`,cur=S.conferencia.find(x=>x.id===id)||{};
+    const doc={membroId:mid,data:d,wa:cur.wa||{},lig:cur.lig||{},importadoTs:Date.now()};doc[campo]={...doc[campo],...por[d]};
+    if(await salvar(()=>API.set('conferencia',id,doc)))n++;await new Promise(r=>setTimeout(r,120))}
+  toast(`${n} dia(s) importado(s)`);
+}
+
+/* ---------- equipe ---------- */
+function vEquipe(){
+  const c=S.config;
+  return `<div class="top"><div><h1>Equipe e alçadas</h1><p>${S.isEditor?'Cadastre quem trabalha no setor e ajuste as faixas de alçada aprovadas pela diretoria.':'Só quem edita este app (coordenação e diretoria) altera a equipe e as alçadas.'}</p></div>${S.isEditor?'<button class="btn p" onclick="formMembro()">Incluir pessoa</button>':''}</div>
+  ${onboarding()}
+  <section class="card"><header><h2>Pessoas</h2></header>${S.equipe.length?`<div class="tw"><table><tr><th>Nome</th><th>Papel</th><th>Frente</th><th>Vinculado</th><th>Situação</th></tr>${S.equipe.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(m=>`<tr class="${S.isEditor?'click':''}" data-m="${m.id}"><td><b>${esc(m.nome)}</b></td><td>${esc(PAPEIS.find(p=>p[0]===m.papel)?.[1]||'')}</td><td>${esc(m.frente||'')}</td><td>${Object.values(S.vinculos).some(v=>v.membroId===m.id)?'<span class="pill ok">Sim</span>':'<span class="pill n">Ainda não abriu</span>'}</td><td>${m.ativo===false?'<span class="pill n">Inativo</span>':'<span class="pill ok">Ativo</span>'}</td></tr>`).join('')}</table></div>`:'<p class="empty">Ninguém cadastrado.</p>'}</section>
+  <section class="card"><header><h2>Faixas de alçada (cliente credor)</h2></header>
+  <form class="form" id="frmCfg"><label for="c1">Integrante decide a partir de (% da referência)<input id="c1" type="number" value="${c.faixa1}" ${S.isEditor?'':'disabled'}></label>
+  <label for="c2">Coordenador decide a partir de (%)<input id="c2" type="number" value="${c.faixa2}" ${S.isEditor?'':'disabled'}></label>
+  <label for="c3">Teto em reais que sempre sobe à diretoria (0 = sem teto)<input id="c3" type="number" step="1000" value="${c.teto||0}" ${S.isEditor?'':'disabled'}></label></form>
+  <p class="small muted">Com cliente devedor, o integrante pode ir até ${100-c.faixa1}% acima da referência e o coordenador até ${100-c.faixa2}%.</p>
+  ${S.isEditor?'<div class="row"><button class="btn p" id="btnCfg">Salvar alçadas</button></div>':''}</section>
+  ${S.isEditor?`<section class="card"><header><h2>Dados de exemplo</h2></header><p class="small">Para treinar a equipe, carregue alguns acordos, contatos e leads fictícios marcados como exemplo. Eles aparecem no painel até serem removidos.</p>
+  <div class="row"><button class="btn" id="btnDemo">Carregar exemplos</button><button class="btn d" id="btnDemoX">Remover exemplos</button></div></section>`:''}
+  <div class="note small"><b>Acesso da equipe.</b> Cada pessoa entra com a própria conta Claude (e-mail) e escolhe o nome uma única vez; depois o nome fica preso ao login. Quem está vinculado como integrante não vê as áreas de gestão, mesmo com acesso de edição.</div>
+  <div class="note small"><b>Aviso que a equipe vê:</b> ${AVISO_MON}</div>`;
+}
+function formMembro(m={}){
+  abrirForm({titulo:m.id?'Editar pessoa':'Incluir pessoa',fields:[{k:'nome',label:'Nome',req:true},{k:'papel',label:'Papel',type:'select',options:PAPEIS,blank:false},{k:'frente',label:'Frente principal',type:'select',options:FRENTES},{k:'ativo',label:'Ativo no setor',type:'check'}],
+    values:{papel:'integrante',ativo:true,...m},onSubmit:async v=>{const id=m.id||nid();const d={...m,...v};delete d.id;return salvar(()=>API.set('equipe',id,d),'Equipe atualizada')}});
+}
+
+/* ---------- exemplos ---------- */
+async function carregarDemo(){
+  const b=$('#btnDemo');b.disabled=true;b.textContent='Carregando…';
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const mem=[['ex_ana','Ana (exemplo)','integrante','Acordos em processos'],['ex_bruno','Bruno (exemplo)','integrante','Atendimento a clientes'],['ex_carla','Carla (exemplo)','integrante','Triagem e captação']];
+  for(const [id,nome,papel,frente] of mem){await API.set('equipe',id,{nome,papel,frente,ativo:true,exemplo:true});await wait(120)}
+  const h=hoje();const casos=[
+    ['Maria Souza','Banco do Brasil','Banco','credor','negociacao',42000,30000,'ex_ana',-12,-3],['José Lima','Estado do Tocantins','Fazenda Pública','credor','proposta',88000,0,'ex_ana',-20,-9],
+    ['Auto Peças Norte','Banco Safra','Banco','devedor','negociacao',120000,150000,'ex_bruno',-15,-2],['Paulo Reis','Construtora Alfa','Construtora','credor','aceito',35000,31000,'ex_ana',-30,-4],
+    ['Rita Alves','Empresa XYZ','Empregador','credor','homologado',18000,16000,'ex_bruno',-45,-10],['João Dias','Banco Pan','Banco','devedor','mapeado',22000,0,'ex_carla',-5,-5],
+    ['Lúcia Melo','INSS','INSS / União','credor','cumprido',26000,24000,'ex_carla',-60,-20]];
+  for(const [cl,cp,tp,polo,et,ref,v,resp,ini,mov] of casos){const fech=ETAPA_IDX[et]>=FECHADO_MIN;
+    await API.set('casos','ex_'+cl.split(' ')[0].toLowerCase(),{cliente:cl,contraparte:cp,tipoContraparte:tp,polo,etapa:et,valorReferencia:ref,valorEmDiscussao:v||'',valorAcordado:fech?v:'',responsavel:resp,criadoEm:addDias(h,ini),etapaDesde:addDias(h,mov),primeiroContatoEm:addDias(h,ini+2),fechadoEm:fech?addDias(h,mov):'',procuracaoPoderes:true,autorizacaoCliente:fech,parcelas:fech?6:'',parcelasPagas:et==='cumprido'?6:fech?2:'',p1:ref*.95,p2:ref*.88,p3:ref*.8,exemplo:true});await wait(120)}
+  const res=['Proposta enviada','Sem resposta','Conversa sem avanço','Recado deixado','Cliente orientado','Contraproposta recebida'];
+  for(let i=0;i<24;i++){const m=mem[i%3][0];await API.set('contatos','ex_ct'+i,{data:addDias(h,-(i%14)),membroId:m,cliente:casos[i%7][0],canal:CANAIS[i%4],interlocutor:INTERLOCUTOR[i%3],resultado:res[i%6],resumo:'Contato de exemplo',exemplo:true,criadoEm:Date.now()});await wait(100)}
+  const tarefas=[['Ligar para o preposto do Banco do Brasil','ex_ana',-1,'POP-02'],['Confirmar cliente para audiência de quinta','ex_bruno',0,'POP-03'],['Conferir 3ª parcela do acordo Rita Alves','ex_bruno',2,'POP-04'],['Triagem do lead Fernanda','ex_carla',0,'POP-06']];
+  for(const [i,[t,r,d,p]] of tarefas.entries()){await API.set('tarefas','ex_t'+i,{titulo:t,responsavel:r,prazo:addDias(h,d),prioridade:d<0?'Alta':'Normal',pop:p,status:i%2?'andamento':'aberta',iniciadaTs:i%2?Date.now()-36e5*(i+2):null,check:{},criadoEm:addDias(h,-3),criadoTs:Date.now()-864e5*3,criadoPor:'guilherme',atualizacoes:i%2?[{ts:Date.now()-36e5,por:r,texto:'Liguei duas vezes, aguardando retorno do preposto.'}]:[],exemplo:true});await wait(100)}
+  const leads=[['Fernanda Costa','Procurou pelo WhatsApp','Defesa em execução bancária','Em triagem'],['Marcos Pinto','Indicação de cliente','Busca e apreensão','Contratou'],['Sônia Brito','Instagram / site','Revisional / consignado','Proposta enviada']];
+  for(const [i,[n,o,a,s]] of leads.entries()){await API.set('leads','ex_l'+i,{nome:n,origem:o,area:a,status:s,responsavel:mem[2][0],criadoEm:addDias(h,-i*3),contratouEm:s==='Contratou'?addDias(h,-1):'',conflito:s==='Contratou',exemplo:true});await wait(100)}
+  const clis=[['ex_c1','Maria Souza (exemplo)','63900000001','1980-'+h.slice(5)],['ex_c2','Paulo Reis (exemplo)','63900000002','1975-03-02']];
+  for(const [id,nome,tel,nasc] of clis){await API.set('clientes',id,{nome,telefone:tel,nascimento:nasc,cidade:'Palmas',uf:'TO',consentimento:true,criadoEm:addDias(h,-2),exemplo:true});await wait(100)}
+  toast('Exemplos carregados');
+}
+async function removerDemo(){
+  const b=$('#btnDemoX');b.disabled=true;b.textContent='Removendo…';
+  for(const col of COLS){for(const d of (S[col]||[]).filter(x=>x.exemplo||String(x.id).startsWith('ex_'))){await API.del(col,d.id);await new Promise(r=>setTimeout(r,90))}}
+  toast('Exemplos removidos');
+}
+
+/* ===================== render e eventos ===================== */
+function render(){
+  const a=document.activeElement;if($('#main').contains(a)&&a.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea')){S.pendRender=true;return}
+  S.route=rotaAtual();renderNav();
+  const v={diario:vDiario,conferencia:vConf,delegar:vDelegar,hoje:vHoje,atendimento:vAtend,clientes:vClientes,acordos:vAcordos,tarefas:vTarefas,painel:vPainel,captacao:vCapt,equipe:vEquipe}[S.route];
+  $('#main').innerHTML=(S.canWrite?'':'<div class="banner">Seu acesso é só de leitura. Peça a quem administra o app o nível Colaborador.</div>')+v();
+}
+document.addEventListener('focusout',()=>{if(S.pendRender){setTimeout(()=>{if(S.pendRender&&!$('#main').contains(document.activeElement)){S.pendRender=false;render()}},50)}});
+$('#main').addEventListener('click',async e=>{
+  const t=e.target.closest('[data-npauta],[data-nficha],[data-plano],[data-atdel],[data-cdia],[data-dl],[data-rf2],[data-wm],[data-ac],[data-cli],[data-wa],[data-msgok],[data-fa],[data-at],[data-t],[data-mv],[data-rf],[data-pp],[data-apr],[data-neg],[data-reab],[data-mf],[data-capt],[data-l],[data-rok],[data-rnew],[data-redit],[data-sat],[data-ind],[data-p],[data-m]');
+  if(!t){if(e.target.id==='btnResumo'){try{await navigator.clipboard.writeText(resumoTexto());toast('Resumo copiado')}catch(err){abrirModal(`<header><h2>Resumo</h2><button class="btn s" onclick="fecharModal()">Fechar</button></header><textarea style="width:100%;min-height:300px">${esc(resumoTexto())}</textarea>`)}}
+    if(e.target.id==='btnCfg'){const f1=+$('#c1').value,f2=+$('#c2').value,te=+$('#c3').value||0;if(!(f1>f2&&f2>0&&f1<=100)){toast('A faixa do integrante precisa ser maior que a do coordenador.');return}await salvar(()=>API.setCfg({faixa1:f1,faixa2:f2,teto:te}),'Alçadas salvas')}
+    if(e.target.id==='btnAddAt')await addAtividade();
+    if(e.target.id==='btnImpWa')importarWa();if(e.target.id==='btnImpLig')importarLig();
+    if(e.target.id==='btnCopDia'){const mid=S.f.diaM&&isGestor()?S.f.diaM:S.me;const tx=textoDia(mid,S.f.dia||hoje());try{await navigator.clipboard.writeText(tx);toast('Relatório copiado')}catch(err){abrirModal(`<header><h2>Relatório do dia</h2><button class="btn s" onclick="fecharModal()">Fechar</button></header><pre class="pre">${esc(tx)}</pre>`)}}
+    if(e.target.id==='btnDemo')await carregarDemo();if(e.target.id==='btnDemoX')await removerDemo();
+    if(e.target.id==='btnSug'){for(const [i,[tema,area]] of SUGESTOES.entries()){await API.set('pauta',nid(),{tema,area,canal:'Instagram',status:'Ideia',data:addDias(hoje(),7*(i+1)),responsavel:S.me||''});await new Promise(r=>setTimeout(r,120))}toast('Temas incluídos na pauta')}
+    return}
+  const d=t.dataset;
+  if(d.wm){const x=S.msgDia&&S.msgDia[d.wm];x&&abrirWhats(x.cli?.id||'',x.modelo,x.extra,x.key);return}
+  if(d.npauta){const n=S.nichos.find(x=>x.id===d.npauta);n&&await nichoPauta(n);return}
+  if(d.nficha){const n=S.nichos.find(x=>x.id===d.nficha);n&&fichaAtendimento({area:n.area,origem:''});return}
+  if(d.plano){await marcarPlano(d.plano,t.checked);return}
+  if(d.atdel!=null){await delAtividade(+d.atdel);return}
+  if(d.cdia){const [a,b]=d.cdia.split('|');detalheConf(a,b);return}
+  if(d.dl){formTarefa({},{responsavel:d.dl});return}
+  if(d.rf2){S.f.resp=d.rf2;S.f.dst='todas';render();return}
+  if(d.ac){S.f.ac=d.ac;render();return}
+  if(d.at){S.f.at=d.at;render();return}
+  if(d.cli){const c=S.clientes.find(x=>x.id===d.cli);c&&formCliente(c);return}
+  if(d.fa){const l=S.leads.find(x=>x.id===d.fa);l&&fichaAtendimento(l);return}
+  if(d.wa){abrirWhats(d.wa,d.key||'');return}
+  if(d.msgok){await marcarMsg(d.msgok);return}
+  if(d.mv){e.stopPropagation();const c=S.casos.find(x=>x.id===d.id);c&&moverEtapa(c,+d.mv);return}
+  if(d.c){const c=S.casos.find(x=>x.id===d.c);c&&formCaso(c);return}
+  if(d.t){const x=S.tarefas.find(y=>y.id===d.t);x&&abrirTarefa(x);return}
+  if(d.rf){await salvar(()=>API.upd('contatos',d.rf,{retornoFeito:hoje()}),'Retorno marcado');return}
+  if(d.pp){const c=S.casos.find(x=>x.id===d.pp);const n=(+c.parcelasPagas||0)+1;const up={parcelasPagas:n};if(n>=+c.parcelas){up.etapa='cumprido';up.etapaDesde=hoje()}else if(c.etapa==='homologado'){up.etapa='cumprimento';up.etapaDesde=hoje()}await salvar(()=>API.upd('casos',c.id,up),'Parcela registrada');return}
+  if(d.apr)return decidir(d.apr,true);if(d.neg)return decidir(d.neg,false);
+  if(d.reab){await salvar(()=>API.upd('casos',d.reab,{recusadoEm:'',etapa:'negociacao',etapaDesde:hoje()}),'Negociação reaberta');return}
+  if(d.mf){S.f.membro=S.f.membro===d.mf?'':d.mf;render();return}
+  if(d.capt){S.f.capt=d.capt;render();return}
+  if(d.l){const l=S.leads.find(x=>x.id===d.l);l&&fichaAtendimento(l);return}
+  if(d.rok){await salvar(()=>API.upd('radar',d.rok,{ultimaConsulta:hoje()}),'Consulta registrada');return}
+  if(d.rnew){const r=S.radar.find(x=>x.id===d.rnew);r&&achado(r);return}
+  if(d.redit){const r=S.radar.find(x=>x.id===d.redit);r&&formRadar(r);return}
+  if(d.sat){abrirForm({titulo:'Nota de satisfação (0 a 10)',fields:[{k:'n',label:'Nota',type:'number',req:true}],onSubmit:v=>salvar(()=>API.upd('casos',d.sat,{satisf:v.n}),'Nota registrada')});return}
+  if(d.ind){await salvar(()=>API.upd('casos',d.ind,{indicacaoPedida:hoje()}),'Pedido de indicação registrado');return}
+  if(d.p){const p=S.pauta.find(x=>x.id===d.p);p&&formPauta(p);return}
+  if(d.m&&S.isEditor){const m=membro(d.m);m&&formMembro(m);return}
+});
+$('#main').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='atDesc'){e.preventDefault();addAtividade()}});
+$('#main').addEventListener('change',e=>{
+  const id=e.target.id;
+  if(id==='fResp')S.f.resp=e.target.value;else if(id==='fCp')S.f.cp=e.target.value;else if(id==='fStatus')S.f.status=e.target.value;
+  else if(id==='fPer')S.f.per=e.target.value;else if(id==='fDia')S.f.dia=e.target.value;else if(id==='fDiaM')S.f.diaM=e.target.value;else if(id==='fDst')S.f.dst=e.target.value;else if(id==='fBusca')S.f.busca=e.target.value;else if(id==='fMembro')S.f.membro=e.target.value;else return;
+  e.target.blur();render();
+});
+
+/* ===================== inicialização ===================== */
+function ligar(){
+  COLS.forEach(col=>API.sub(col,docs=>{
+    if(col==='vinculos'){S.vinculos=Object.fromEntries(docs.map(d=>[d.id,d]));if(S.uid&&S.vinculos[S.uid]&&!S.me)S.me=S.vinculos[S.uid].membroId}
+    else S[col]=docs;
+    if(S.me&&!membro(S.me)&&S.equipe.length&&col==='equipe')S.me=null;
+    render()}));
+  API.subDoc('config/geral',d=>{S.config={faixa1:85,faixa2:65,teto:0,...(d||{})};render()});
+}
+/* ===================== banco (Supabase) com a mesma interface usada pelo app ===================== */
+function criarDB(sb){
+  const T='acordos_docs';
+  const cache={};          // col -> Map(id -> data)
+  const ouv={};            // col -> [cb]
+  const ouvDoc={};         // 'col/id' -> [cb]
+  const pronto={};
+  const lista=col=>[...(cache[col]||new Map()).entries()].map(([id,d])=>({id,data:()=>d,exists:true}));
+  const avisar=col=>{
+    const docs=lista(col);(ouv[col]||[]).forEach(f=>f({docs}));
+    for(const k in ouvDoc){if(k.startsWith(col+'/')){const id=k.slice(col.length+1);const d=cache[col]&&cache[col].get(id);ouvDoc[k].forEach(f=>f({exists:!!d,data:()=>d}))}}
+  };
+  async function carregar(col){
+    if(pronto[col])return pronto[col];
+    pronto[col]=(async()=>{
+      const m=new Map();let de=0;
+      while(true){const {data,error}=await sb.from(T).select('id,data').eq('col',col).range(de,de+999);if(error)throw error;data.forEach(r=>m.set(r.id,r.data||{}));if(data.length<1000)break;de+=1000}
+      cache[col]=m;
+    })();
+    return pronto[col];
+  }
+  sb.channel('acordos-docs').on('postgres_changes',{event:'*',schema:'public',table:T},p=>{
+    const r=p.eventType==='DELETE'?p.old:p.new;if(!r||!r.col)return;
+    const m=cache[r.col]||(cache[r.col]=new Map());
+    if(p.eventType==='DELETE')m.delete(r.id);else m.set(r.id,r.data||{});
+    avisar(r.col);
+  }).subscribe();
+  const erro=e=>{const x=new Error(e.message||'erro');x.code=(e.code==='42501'||/row-level security/i.test(e.message||''))?'invalid_argument':e.code;return x};
+  const ref=(col,id)=>({
+    async set(data){const {error}=await sb.from(T).upsert({col,id,data,updated_at:new Date().toISOString()});if(error)throw erro(error);(cache[col]||(cache[col]=new Map())).set(id,data);avisar(col)},
+    async update(data){const atual=(cache[col]&&cache[col].get(id))||{};const novo={...atual,...data};const {error}=await sb.from(T).update({data:novo,updated_at:new Date().toISOString()}).eq('col',col).eq('id',id);if(error)throw erro(error);(cache[col]||(cache[col]=new Map())).set(id,novo);avisar(col)},
+    async delete(){const {error}=await sb.from(T).delete().eq('col',col).eq('id',id);if(error)throw erro(error);cache[col]&&cache[col].delete(id);avisar(col)},
+    onSnapshot(cb,err){const k=col+'/'+id;(ouvDoc[k]||(ouvDoc[k]=[])).push(cb);carregar(col).then(()=>{const d=cache[col].get(id);cb({exists:!!d,data:()=>d})}).catch(e=>err&&err(erro(e)))}
+  });
+  return {
+    collection(col){return {doc:id=>ref(col,id),onSnapshot(cb,err){(ouv[col]||(ouv[col]=[])).push(cb);carregar(col).then(()=>cb({docs:lista(col)})).catch(e=>err&&err(erro(e)))}}},
+    doc(path){const [c,id]=path.split('/');return ref(c,id)}
+  };
+}
+
+/* ===================== entrada (login, convite e nova senha) ===================== */
+const LINK_TIPO=(/type=(invite|recovery|signup|magiclink)/.exec(location.hash)||[])[1]||null;
+let SB=null;
+function telaAuth(modo,msg,cls){
+  const A=$('#auth');
+  const cab='<h1>Setor de Acordos</h1><p>D\'Freire Advocacia</p>';
+  if(modo==='login')A.innerHTML=`<div class="auth"><form class="box" id="fLogin">${cab}
+    <label>E-mail<input id="lEmail" type="email" autocomplete="username" required></label>
+    <label>Senha<input id="lSenha" type="password" autocomplete="current-password" required></label>
+    <button class="btn p" type="submit">Entrar</button>
+    <a id="lEsq">Esqueci minha senha</a>
+    <div class="msg ${cls||''}" id="lMsg">${esc(msg||'')}</div></form></div>`;
+  if(modo==='senha')A.innerHTML=`<div class="auth"><form class="box" id="fSenha">${cab}
+    <p>${LINK_TIPO==='invite'?'Bem-vindo! Crie sua senha para acessar o app.':'Defina sua nova senha.'}</p>
+    <label>Nova senha (mínimo 8 caracteres)<input id="sN1" type="password" autocomplete="new-password" minlength="8" required></label>
+    <label>Repita a senha<input id="sN2" type="password" autocomplete="new-password" minlength="8" required></label>
+    <button class="btn p" type="submit">Salvar senha e entrar</button>
+    <div class="msg ${cls||''}" id="lMsg">${esc(msg||'')}</div></form></div>`;
+  if(modo==='login'){
+    $('#fLogin').onsubmit=async e=>{e.preventDefault();$('#lMsg').textContent='Entrando…';$('#lMsg').className='msg';
+      const {error}=await SB.auth.signInWithPassword({email:$('#lEmail').value.trim(),password:$('#lSenha').value});
+      if(error){telaAuth('login','E-mail ou senha incorretos.','err');return}
+      iniciarApp()};
+    $('#lEsq').onclick=async()=>{const em=$('#lEmail').value.trim();if(!em){$('#lMsg').textContent='Digite seu e-mail acima e clique de novo.';$('#lMsg').className='msg err';return}
+      const {error}=await SB.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});
+      $('#lMsg').textContent=error?'Não foi possível enviar agora. Tente de novo.':'Se o e-mail estiver cadastrado, você receberá um link para criar nova senha.';$('#lMsg').className='msg '+(error?'err':'ok')};
+  }
+  if(modo==='senha'){
+    $('#fSenha').onsubmit=async e=>{e.preventDefault();const a=$('#sN1').value,b=$('#sN2').value;
+      if(a!==b){telaAuth('senha','As senhas não conferem.','err');return}
+      const {error}=await SB.auth.updateUser({password:a});
+      if(error){telaAuth('senha','Não foi possível salvar: '+error.message,'err');return}
+      history.replaceState(null,'',location.pathname);iniciarApp()};
+  }
+}
+async function sair(){try{await SB.auth.signOut()}catch(e){}try{localStorage.removeItem('setor_me')}catch(e){}location.href=location.pathname}
+let INICIADO=false;
+async function iniciarApp(){
+  if(INICIADO)return;INICIADO=true;
+  $('#auth').innerHTML='';
+  const {data:{user}}=await SB.auth.getUser();
+  if(!user){INICIADO=false;telaAuth('login');return}
+  S.uid=user.id;S.email=user.email;
+  try{const {data}=await SB.rpc('acordos_is_admin');S.isEditor=!!data;S.isOwner=!!data}catch(e){}
+  S.db=criarDB(SB);S.sample=null;S.canWrite=true;
+  ligar();render();
+}
+(async function init(){
+  S.route=rotaAtual();
+  try{S.me=localStorage.getItem('setor_me')||null}catch(e){}
+  const CFG=window.SETOR_CONFIG||{};
+  if(!window.supabase||!CFG.url||!CFG.anonKey){$('#main').innerHTML='<div class="banner">Configuração do banco ausente (config.js).</div>';return}
+  SB=window.supabase.createClient(CFG.url,CFG.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'}});
+  SB.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY')telaAuth('senha')});
+  const {data:{session}}=await SB.auth.getSession();
+  if(session&&(LINK_TIPO==='invite'||LINK_TIPO==='recovery')){telaAuth('senha');return}
+  if(session){if(location.hash.includes('access_token'))history.replaceState(null,'',location.pathname);iniciarApp();return}
+  telaAuth('login');
+})();
+</script>
+</body>
+</html>
