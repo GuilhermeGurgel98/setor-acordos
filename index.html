@@ -442,6 +442,8 @@ function abrirForm({titulo,fields,values={},botao='Salvar',onSubmit,onChange,ext
   });
 }
 const opM=()=>ativos().map(m=>[m.id,m.nome]);
+const opClientes=()=>S.clientes.slice().sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(c=>[c.id,c.nome]);
+const nomeCli=id=>S.clientes.find(c=>c.id===id)?.nome||'';
 const opCasos=()=>S.casos.filter(casoAberto).sort((a,b)=>(a.cliente||'').localeCompare(b.cliente||'')).map(c=>[c.id,`${c.cliente} · ${c.contraparte||c.tipoContraparte||''}${c.processo?' · '+c.processo:''}`]);
 
 /* ===================== registrar contato ===================== */
@@ -560,7 +562,7 @@ function formTarefa(t={},pre={}){
     {k:'prazo',label:'Prazo (dia)',type:'date',req:true},{k:'prazoHora',label:'Até que horas',type:'time'},
     {k:'prioridade',label:'Prioridade',type:'select',options:['Alta','Normal','Baixa'],blank:false},
     {k:'pop',label:'POP aplicável',type:'select',options:Object.entries(POPS).map(([k,v])=>[k,k+' '+v[0]]),blank:'Nenhum'},
-    {k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:'Instruções para quem vai fazer',type:'textarea',full:true}];
+    {k:'clienteId',label:'Cliente',type:'select',options:opClientes,blank:'Nenhum'},{k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:'Instruções para quem vai fazer',type:'textarea',full:true}];
   abrirForm({titulo:novo?'Delegar tarefa':'Editar tarefa',fields,values:{prioridade:'Normal',prazo:hoje(),prazoHora:'18:00',responsavel:S.me||'',...pre,...t},botao:novo?'Delegar':'Salvar',
     apagar:novo||!podeEditarTarefa(t)?null:async()=>salvar(()=>API.del('tarefas',t.id),'Tarefa apagada'),
     onSubmit:async v=>{const id=t.id||nid();const doc={...t,...v,status:t.status||'aberta',criadoEm:t.criadoEm||hoje(),criadoTs:t.criadoTs||Date.now(),criadoPor:t.criadoPor||S.me||'',atualizacoes:t.atualizacoes||[]};delete doc.id;
@@ -585,7 +587,7 @@ function abrirTarefa(t0){
       <div><span class="k">${s==='concluida'?'Concluída':'Tempo em execução'}</span><b>${s==='concluida'?fdt(fim):ini?dur(now-ini):'–'}</b><span class="s">${s==='concluida'?'Execução: '+dur(fim-(ini||cri)):''}</span></div>
       <div><span class="k">Prazo</span><b>${fd(t.prazo)} ${esc(t.prazoHora||'18:00')}</b><span class="s">${prazoTxt}</span></div>
     </div>
-    <div class="row">${pillTarefa(t)}<span class="pill n">Prioridade ${esc(t.prioridade||'Normal')}</span>${t.pop?`<span class="pill n">${t.pop}</span>`:''}${t.casoId?`<span class="pill n">Acordo: ${esc(S.casos.find(c=>c.id===t.casoId)?.cliente||'')}</span>`:''}</div>
+    <div class="row">${pillTarefa(t)}<span class="pill n">Prioridade ${esc(t.prioridade||'Normal')}</span>${t.pop?`<span class="pill n">${t.pop}</span>`:''}${t.clienteId&&nomeCli(t.clienteId)?`<span class="pill n">Cliente: ${esc(nomeCli(t.clienteId))}</span>`:''}${t.casoId?`<span class="pill n">Acordo: ${esc(S.casos.find(c=>c.id===t.casoId)?.cliente||'')}</span>`:''}</div>
     ${t.obs?`<div class="guia"><h3>Instruções</h3><div>${esc(t.obs)}</div></div>`:''}
     ${pop?`<div class="guia"><h3>${t.pop} ${esc(pop[0])}</h3><div id="ck">${pop[1].map((x,i)=>`<label class="ck"><input type="checkbox" data-i="${i}" ${(t.check||{})[i]?'checked':''} ${podeExecutar(t)&&s!=='concluida'?'':'disabled'}> ${esc(x)}</label>`).join('')}</div></div>`:''}
     <div><h3>Atualizações</h3>
@@ -643,7 +645,7 @@ function vDelegar(){
   ${ts.length?`<div class="tw"><table><tr><th>Tarefa</th><th>Responsável</th><th>Delegada</th><th>Prazo</th><th>Situação</th><th>Tempo</th><th>Última atualização</th></tr>
   ${ts.map(t=>{const s=stTarefa(t);const u=(t.atualizacoes||[]).slice(-1)[0];
     const tempo=s==='concluida'?'Execução '+dur(t.concluidaTs-(t.iniciadaTs||t.criadoTs)):s==='andamento'?'Há '+dur(now-t.iniciadaTs)+' em execução':'Aguardando há '+dur(now-(t.criadoTs||now));
-    return `<tr class="click" data-t="${t.id}"><td><b style="white-space:normal">${esc(t.titulo)}</b>${t.prioridade==='Alta'?' <span class="pill bad">Alta</span>':''}</td><td>${esc(nomeM(t.responsavel))}</td><td>${fdt(t.criadoTs)}</td><td>${fd(t.prazo)} ${esc(t.prazoHora||'')}</td><td>${pillTarefa(t)}</td><td class="small">${tempo}</td>
+    return `<tr class="click" data-t="${t.id}"><td><b style="white-space:normal">${esc(t.titulo)}</b>${t.clienteId&&nomeCli(t.clienteId)?`<div class="small muted">${esc(nomeCli(t.clienteId))}</div>`:''}${t.prioridade==='Alta'?' <span class="pill bad">Alta</span>':''}</td><td>${esc(nomeM(t.responsavel))}</td><td>${fdt(t.criadoTs)}</td><td>${fd(t.prazo)} ${esc(t.prazoHora||'')}</td><td>${pillTarefa(t)}</td><td class="small">${tempo}</td>
     <td class="small">${u?`<span class="muted">${fdt(u.ts)}</span><br>${esc(u.texto.slice(0,90))}`:'<span class="muted">Sem atualização</span>'}</td></tr>`}).join('')}</table></div>`:'<p class="empty">Nenhuma tarefa neste filtro.</p>'}</section>`;
 }
 
@@ -671,7 +673,7 @@ function vHoje(){
   ${msgCard()}
   <div class="grid g2">
     <section class="card"><header><h2>Minhas tarefas</h2><span class="pill n">${tf.length}</span></header>
-      ${tf.length?`<div class="list">${tf.map(t=>`<div class="item"><span class="stripe ${st(t)}"></span><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">Prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')} · ${esc(t.prioridade)}${t.criadoPor&&t.criadoPor!==eu?' · de '+esc(nomeM(t.criadoPor)):''}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" data-t="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa aberta.</p>'}</section>
+      ${tf.length?`<div class="list">${tf.map(t=>`<div class="item"><span class="stripe ${st(t)}"></span><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">${t.clienteId&&nomeCli(t.clienteId)?esc(nomeCli(t.clienteId))+' · ':''}Prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')} · ${esc(t.prioridade)}${t.criadoPor&&t.criadoPor!==eu?' · de '+esc(nomeM(t.criadoPor)):''}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" data-t="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa aberta.</p>'}</section>
     <section class="card"><header><h2>Retornos combinados</h2><span class="pill n">${ret.length+avulsos.length}</span></header>
       ${ret.length+avulsos.length?`<div class="list">${ret.map(c=>`<div class="item"><span class="stripe ${c.proximaData<h?'bad':'warn'}"></span><div class="b"><div class="t">${esc(c.cliente)} x ${esc(c.contraparte)}</div><div class="small muted">${fd(c.proximaData)} · ${esc(c.proximoPasso||'retomar negociação')}</div></div><button class="btn s" data-c="${c.id}">Abrir</button></div>`).join('')}
       ${avulsos.map(c=>`<div class="item"><span class="stripe warn"></span><div class="b"><div class="t">${esc(c.cliente||'Contato avulso')}</div><div class="small muted">${fd(c.proximaData)} · ${esc(c.proximoPasso||c.resumo)}</div></div><button class="btn s" data-rf="${c.id}">Feito</button></div>`).join('')}</div>`:'<p class="empty">Nenhum retorno para hoje.</p>'}</section>
@@ -1106,7 +1108,7 @@ function vClientes(){
   ${cs.map(c=>{const casos=S.casos.filter(k=>k.clienteId===c.id||(!k.clienteId&&(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()));
     const ult=S.contatos.filter(k=>k.clienteId===c.id||(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()).map(k=>k.data).sort().pop();
     return `<tr class="click" data-cli="${c.id}"><td><b>${esc(c.nome)}</b>${c.consentimento?'':'<div class="small muted">Sem autorização para mensagens</div>'}</td><td>${esc(c.telefone||'–')}</td><td>${esc([c.cidade,c.uf].filter(Boolean).join('/'))}</td><td class="n">${casos.length}</td><td>${fd(ult)}</td>
-    <td>${c.telefone?`<button class="btn s wa" data-wa="${c.id}">WhatsApp</button>`:''}</td></tr>`}).join('')}</table></div>`:'<div class="empty-big"><p>Nenhum cliente cadastrado.</p><button class="btn p" onclick="formCliente()">Cadastrar o primeiro</button></div>'}</section>`;
+    <td style="white-space:nowrap"><button class="btn s" data-ntc="${c.id}">Nova tarefa</button> ${c.telefone?`<button class="btn s wa" data-wa="${c.id}">WhatsApp</button>`:''}</td></tr>`}).join('')}</table></div>`:'<div class="empty-big"><p>Nenhum cliente cadastrado.</p><button class="btn p" onclick="formCliente()">Cadastrar o primeiro</button></div>'}</section>`;
 }
 const UFS='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
 function formCliente(c={},depois){
@@ -1123,12 +1125,15 @@ function formCliente(c={},depois){
     onSubmit:async v=>{const tel=soDig(v.telefone);if(tel.length<10){toast('Confira o WhatsApp com DDD.');return false}
       const id=c.id||nid();const d={...c,...v,atualizadoEm:hoje()};if(novo)d.criadoEm=hoje();delete d.id;
       const ok=await salvar(()=>API.set('clientes',id,d),novo?'Cliente cadastrado':'Cadastro atualizado');if(ok&&depois)await depois(id);return ok}});
-  if(!novo){const m=$('#layer .modal');m.querySelectorAll('[data-wa2]').forEach(b=>b.onclick=()=>{fecharModal();abrirWhats(c.id,b.dataset.wa2)})}
+  if(!novo){const m=$('#layer .modal');m.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{fecharModal();formTarefa({},{clienteId:c.id})});m.querySelectorAll('[data-abt]').forEach(b=>b.onclick=()=>{const t=S.tarefas.find(x=>x.id===b.dataset.abt);if(t){fecharModal();abrirTarefa(t)}});m.querySelectorAll('[data-wa2]').forEach(b=>b.onclick=()=>{fecharModal();abrirWhats(c.id,b.dataset.wa2)})}
 }
 function fichaCliente(c){
   const casos=S.casos.filter(k=>k.clienteId===c.id||(!k.clienteId&&(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()));
   const cts=S.contatos.filter(k=>k.clienteId===c.id||(k.cliente||'').toLowerCase()===(c.nome||'').toLowerCase()).sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,6);
-  return `<div class="guia"><h3>Mensagens rápidas</h3><div class="row">${Object.entries(MODELOS).map(([k,v])=>`<button class="btn s" type="button" data-wa2="${k}">${esc(v[0])}</button>`).join('')}</div></div>
+  const tfs=S.tarefas.filter(t=>t.clienteId===c.id).sort((a,b)=>(a.status==='concluida')-(b.status==='concluida')||(a.prazo||'').localeCompare(b.prazo||''));
+  return `<div class="guia"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Tarefas deste cliente</h3><button class="btn p s" type="button" data-nt="1">Nova tarefa</button></div>
+  ${tfs.length?`<div class="list">${tfs.map(t=>`<div class="item"><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">${esc(nomeM(t.responsavel))} · prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" type="button" data-abt="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa ainda.</p>'}</div>
+  <div class="guia"><h3>Mensagens rápidas</h3><div class="row">${Object.entries(MODELOS).map(([k,v])=>`<button class="btn s" type="button" data-wa2="${k}">${esc(v[0])}</button>`).join('')}</div></div>
   <div class="grid g2"><div><h3>Acordos</h3>${casos.length?`<div class="list">${casos.map(k=>`<div class="item"><div class="b"><div class="t">${esc(k.contraparte)}</div><div class="small muted">${esc(ETAPAS[ETAPA_IDX[k.etapa]||0][1])}${k.processo?' · '+esc(k.processo):''}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</div>
   <div><h3>Últimos contatos</h3>${cts.length?`<div class="list">${cts.map(k=>`<div class="item"><div class="b"><div class="small muted">${fd(k.data)} · ${esc(k.canal)}</div><div class="small">${esc(k.resumo)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nenhum.</p>'}</div></div>`;
 }
@@ -1359,7 +1364,7 @@ function render(){
 }
 document.addEventListener('focusout',()=>{if(S.pendRender){setTimeout(()=>{if(S.pendRender&&!$('#main').contains(document.activeElement)){S.pendRender=false;render()}},50)}});
 $('#main').addEventListener('click',async e=>{
-  const t=e.target.closest('[data-npauta],[data-nficha],[data-plano],[data-atdel],[data-cdia],[data-dl],[data-rf2],[data-wm],[data-ac],[data-cli],[data-wa],[data-msgok],[data-fa],[data-at],[data-t],[data-mv],[data-rf],[data-pp],[data-apr],[data-neg],[data-reab],[data-mf],[data-capt],[data-l],[data-rok],[data-rnew],[data-redit],[data-sat],[data-ind],[data-p],[data-m]');
+  const t=e.target.closest('[data-ntc],[data-npauta],[data-nficha],[data-plano],[data-atdel],[data-cdia],[data-dl],[data-rf2],[data-wm],[data-ac],[data-cli],[data-wa],[data-msgok],[data-fa],[data-at],[data-t],[data-mv],[data-rf],[data-pp],[data-apr],[data-neg],[data-reab],[data-mf],[data-capt],[data-l],[data-rok],[data-rnew],[data-redit],[data-sat],[data-ind],[data-p],[data-m]');
   if(!t){if(e.target.id==='btnResumo'){try{await navigator.clipboard.writeText(resumoTexto());toast('Resumo copiado')}catch(err){abrirModal(`<header><h2>Resumo</h2><button class="btn s" onclick="fecharModal()">Fechar</button></header><textarea style="width:100%;min-height:300px">${esc(resumoTexto())}</textarea>`)}}
     if(e.target.id==='btnCfg'){const f1=+$('#c1').value,f2=+$('#c2').value,te=+$('#c3').value||0;if(!(f1>f2&&f2>0&&f1<=100)){toast('A faixa do integrante precisa ser maior que a do coordenador.');return}await salvar(()=>API.setCfg({faixa1:f1,faixa2:f2,teto:te}),'Alçadas salvas')}
     if(e.target.id==='btnAddAt')await addAtividade();
@@ -1370,6 +1375,7 @@ $('#main').addEventListener('click',async e=>{
     return}
   const d=t.dataset;
   if(d.wm){const x=S.msgDia&&S.msgDia[d.wm];x&&abrirWhats(x.cli?.id||'',x.modelo,x.extra,x.key);return}
+  if(d.ntc){formTarefa({},{clienteId:d.ntc});return}
   if(d.npauta){const n=S.nichos.find(x=>x.id===d.npauta);n&&await nichoPauta(n);return}
   if(d.nficha){const n=S.nichos.find(x=>x.id===d.nficha);n&&fichaAtendimento({area:n.area,origem:''});return}
   if(d.plano){await marcarPlano(d.plano,t.checked);return}
