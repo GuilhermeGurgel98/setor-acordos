@@ -260,7 +260,7 @@ const AREAS=['Defesa em execução bancária','Revisional / consignado','Busca e
 /* ===================== estado ===================== */
 const S={db:null,user:null,uid:null,local:false,canWrite:true,isEditor:false,
   equipe:[],processos:[],log:[],logInfo:null,vinculos:{},contatos:[],casos:[],tarefas:[],leads:[],radar:[],pauta:[],clientes:[],pessoas:[],msgs:[],atividades:[],conferencia:[],nichos:[],plano:[],isOwner:false,sample:null,config:{faixa1:85,faixa2:65,teto:0},
-  me:null,loaded:{},route:'hoje',f:{buscaP:'',buscaPe:'',atvM:'',atvCol:'',per:'30',membro:'',cp:'',resp:'',status:'abertas',capt:'nichos',ac:'funil',busca:'',at:'abertos',dst:'abertas',dia:'',diaM:''}};
+  diaCap:{open:false,txt:'',campos:{},prev:'',st:'',sel:'',form:{}},me:null,loaded:{},route:'hoje',f:{buscaP:'',buscaPe:'',atvM:'',atvCol:'',per:'30',membro:'',cp:'',resp:'',status:'abertas',capt:'nichos',ac:'funil',busca:'',at:'abertos',dst:'abertas',dia:'',diaM:''}};
 const COLS=['equipe','processos','vinculos','contatos','casos','tarefas','leads','radar','pauta','clientes','pessoas','msgs','atividades','conferencia','nichos','plano'];
 
 /* camada de dados: banco compartilhado do artifact, ou memória local quando aberto fora do claude.ai */
@@ -1309,7 +1309,7 @@ function extrairDados(txt){
   const rua=linhas.find(l=>/^(rua|r\.|av\.?|avenida|alameda|travessa|tv\.|quadra|qd\.?|rodovia|estrada|setor|ch[aá]cara|fazenda|q\.|arse|arne|arso|arno|acsu|acno|acso|acne)\b/i.test(l));
   const endL=depoisDe(/\b(endere[cç]o( residencial)?|residente e domiciliad[oa]( na| no| em)?|reside( na| no| em)?|logradouro)\b/i);
   const ufs0=UFS.join('|');const inl=t.match(new RegExp(`\\b(?:rua|av\\.|avenida|alameda|travessa|quadra|qd\\.)\\s[^\\n]*?(?=,\\s*[A-Za-zÀ-ÿ ]+\\s*[\\/-]\\s*(?:${ufs0})\\b|,?\\s*CEP|\\n|$)`,'i'));
-  const end=(rua||endL||(inl?inl[0]:'')).replace(/,?\s*CEP.*$/i,'').trim();if(end)o.endereco=end.slice(0,160);
+  const end=(rua||endL||(inl?inl[0]:'')).replace(/,?\s*CEP.*$/i,'').replace(new RegExp(`[,-]?\\s*[A-Za-zÀ-ÿ' ]{3,40}\\s*[\\/-]\\s*(${ufs0})\\s*$`),'').trim();if(end)o.endereco=end.slice(0,160);
   const ufs=UFS.join('|');const cm=[...t.matchAll(new RegExp(`([A-Za-zÀ-ÿ' ]{3,40}?)\\s*[\\/-]\\s*(${ufs})\\b`,'g'))].filter(m=>!/^(SSP|SESP|PC|DETRAN|DIC|IFP)$/i.test(m[1].trim())&&!NAO_NOME.test(m[1]));
   const cid=depoisDe(/\b(cidade|munic[ií]pio)\b/i);
   if(cid){const m=cid.match(new RegExp(`^([A-Za-zÀ-ÿ' ]{3,40}?)\\s*(?:[\\/-]\\s*(${ufs}))?\\b`));if(m){o.cidade=tituloNome(m[1].trim());if(m[2])o.uf=m[2]}}
@@ -1333,21 +1333,22 @@ function capturaHtml(px){return `<div class="cap" id="${px}Cap">
   <textarea id="${px}Txt" placeholder="Ex.: Maria da Silva Souza, CPF 123.456.789-09, nascida em 10/03/1980, WhatsApp (63) 99999-9999, Rua 10, Qd. 5, Lt. 2, Palmas/TO"></textarea>
   <div class="row"><button class="btn s p" type="button" id="${px}Ler">Preencher os campos</button><label class="btn s" for="${px}Img" style="cursor:pointer">Foto ou print do documento</label><input type="file" id="${px}Img" accept="image/*" hidden><span class="small muted" id="${px}St" role="status"></span></div>
   <div class="capprev" id="${px}Prev"></div></div>`}
-function ligarCaptura(m,px,campoEl){
-  const g=x=>m.querySelector(x);const box=g('#'+px+'Cap');if(!box)return;const txt=g('#'+px+'Txt'),st=g('#'+px+'St');
-  const aplicar=()=>{const d=extrairDados(txt.value);let n=0;
+function ligarCaptura(m,px,campoEl,opt={}){
+  const R=opt.root||(()=>m);const g=x=>R().querySelector(x);const box=g('#'+px+'Cap');if(!box)return;
+  const aplicar=()=>{const d=extrairDados(g('#'+px+'Txt').value);let n=0;
     for(const [k] of CAMPOS_PE){const el=campoEl(k);if(!el||d[k]==null)continue;if(el.value&&!el.dataset.auto)continue;
       if(el.tagName==='SELECT'&&![...el.options].some(o=>o.value===d[k]))continue;el.value=d[k];el.dataset.auto='1';n++;el.dispatchEvent(new Event('input',{bubbles:true}))}
-    st.textContent=n?`${n} campo(s) preenchido(s). Confira antes de salvar.`:'Não reconheci dados nesse texto. Preencha à mão.'};
+    const msg=n?`${n} campo(s) preenchido(s). Confira antes de salvar.`:'Não reconheci dados nesse texto. Preencha à mão.';g('#'+px+'St').textContent=msg;opt.status&&opt.status(msg)};
+  const status=t=>{const s=g('#'+px+'St');if(s)s.textContent=t;opt.status&&opt.status(t)};
   const imagem=async f=>{if(!f)return;if(!/^image\//.test(f.type)){toast('Envie uma imagem (foto ou print). Se for PDF, tire um print da página.');return}
-    const det=box.closest('details');if(det)det.open=true;
-    g('#'+px+'Prev').innerHTML=`<img alt="Imagem enviada do documento" src="${URL.createObjectURL(f)}">`;st.textContent='Lendo a imagem…';
-    try{const tx=await lerImagem(f,p=>st.textContent=`Lendo a imagem… ${p}%`);if(!tx.trim()){st.textContent='Não consegui ler texto nessa imagem. Tente uma foto mais nítida ou digite os dados.';return}
-      txt.value=(txt.value.trim()?txt.value.trim()+'\n':'')+tx.trim();aplicar()}
-    catch(e){st.textContent='Não consegui ler a imagem agora. Digite os dados no campo acima.'}};
+    const det=g('#'+px+'Cap')?.closest('details');if(det)det.open=true;
+    const url=URL.createObjectURL(f);g('#'+px+'Prev').innerHTML=`<img alt="Imagem enviada do documento" src="${url}">`;opt.prev&&opt.prev(url);status('Lendo a imagem…');
+    try{const tx=await lerImagem(f,p=>status(`Lendo a imagem… ${p}%`));if(!tx.trim()){status('Não consegui ler texto nessa imagem. Tente uma foto mais nítida ou digite os dados.');return}
+      const t=g('#'+px+'Txt');t.value=(t.value.trim()?t.value.trim()+'\n':'')+tx.trim();t.dispatchEvent(new Event('input',{bubbles:true}));aplicar()}
+    catch(e){status('Não consegui ler a imagem agora. Digite os dados no campo acima.')}};
   g('#'+px+'Ler').onclick=aplicar;
   g('#'+px+'Img').onchange=e=>{imagem(e.target.files[0]);e.target.value=''};
-  m.addEventListener('paste',e=>{const it=[...(e.clipboardData?.items||[])].find(i=>i.type&&i.type.startsWith('image/'));if(it){e.preventDefault();imagem(it.getAsFile())}});
+  (opt.root?box:m).addEventListener('paste',e=>{const it=[...(e.clipboardData?.items||[])].find(i=>i.type&&i.type.startsWith('image/'));if(it){e.preventDefault();imagem(it.getAsFile())}});
   box.addEventListener('dragover',e=>{e.preventDefault();box.classList.add('drag')});box.addEventListener('dragleave',()=>box.classList.remove('drag'));
   box.addEventListener('drop',e=>{e.preventDefault();box.classList.remove('drag');imagem(e.dataTransfer.files[0])});
 }
@@ -1358,20 +1359,41 @@ function duplicadoPe(d,ignorar){const doc=soDig(d.cpf),tel=soDig(d.telefone);
 async function gravarPessoa(d,id){const novo=!id;id=id||nid();const atual=S.pessoas.find(p=>p.id===id)||{};
   const doc={...atual,...d,atualizadoEm:hoje()};if(novo){doc.criadoEm=hoje();doc.criadoPor=S.me||''}delete doc.id;
   return (await salvar(()=>API.set('pessoas',id,doc),novo?'Contato cadastrado':'Contato atualizado'))?id:null}
-/* bloco dentro da tarefa */
-function blocoAvulsoTarefa(){const i=(k,l,extra='')=>`<label for="tp_${k}">${l}<input id="tp_${k}" ${extra}></label>`;
-  return `<details class="guia" id="tpBox"><summary><b>Cadastrar contato avulso</b> <span class="small muted">(pessoa que não é cliente)</span></summary>
-  ${capturaHtml('tp')}
+/* campos do contato avulso (tarefa e Meu dia) */
+function camposAvulsoHtml(px,v={}){const i=(k,l,extra='')=>`<label for="${px}_${k}">${l}<input id="${px}_${k}" value="${esc(v[k]||'')}" ${extra}></label>`;
+  const sel=(k,l,ops,def='')=>`<label for="${px}_${k}">${l}<select id="${px}_${k}"><option value="">Selecione</option>${ops.map(o=>`<option ${(v[k]??def)===o?'selected':''}>${o}</option>`).join('')}</select></label>`;
+  return `${capturaHtml(px)}
   <div class="form">${i('nome','Nome completo')}${i('cpf','CPF ou CNPJ')}${i('telefone','WhatsApp','placeholder="(63) 99999-9999"')}${i('email','E-mail','type="email"')}
-   ${i('rg','RG')}${i('nascimento','Nascimento','type="date"')}
-   <label for="tp_estadoCivil">Estado civil<select id="tp_estadoCivil"><option value="">Selecione</option>${['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)'].map(o=>`<option>${o}</option>`).join('')}</select></label>
-   <label for="tp_vinculo">Quem é<select id="tp_vinculo"><option value="">Selecione</option>${VINCULOS_PE.map(o=>`<option>${o}</option>`).join('')}</select></label>
-   <label class="full" for="tp_endereco">Rua, número, bairro<input id="tp_endereco"></label>${i('cidade','Cidade')}
-   <label for="tp_uf">UF<select id="tp_uf"><option value="">Selecione</option>${UFS.map(o=>`<option ${o==='TO'?'selected':''}>${o}</option>`).join('')}</select></label>${i('cep','CEP')}</div>
+   ${i('rg','RG')}${i('nascimento','Nascimento','type="date"')}${sel('estadoCivil','Estado civil',['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)'])}${sel('vinculo','Quem é',VINCULOS_PE)}
+   <label class="full" for="${px}_endereco">Rua, número, bairro<input id="${px}_endereco" value="${esc(v.endereco||'')}"></label>${i('cidade','Cidade')}${sel('uf','UF',UFS,'TO')}${i('cep','CEP')}</div>`}
+function lerAvulso(px,root){const d={};[...CAMPOS_PE.map(c=>c[0]),'vinculo'].forEach(k=>{const el=root.querySelector('#'+px+'_'+k);if(el)d[k]=el.value.trim()});return d}
+/* acha o contato já cadastrado (por CPF ou telefone+nome) ou cadastra um novo; devolve {pessoaId} ou {clienteId} */
+async function contatoDaAtividade(d,origem,texto){const doc=soDig(d.cpf),tel=soDig(d.telefone);
+  const cli=S.clientes.find(c=>doc&&soDig(c.cpf)===doc);if(cli)return {clienteId:cli.id,nome:cli.nome,existente:'cliente'};
+  const pe=S.pessoas.find(p=>(doc&&soDig(p.cpf)===doc)||(!doc&&tel.length>=10&&soDig(p.telefone)===tel&&(p.nome||'').toLowerCase()===(d.nome||'').toLowerCase()));
+  if(pe){const up={};for(const k in d)if(d[k]&&!pe[k])up[k]=d[k];if(Object.keys(up).length)await salvar(()=>API.upd('pessoas',pe.id,up));return {pessoaId:pe.id,nome:pe.nome,existente:'contato'}}
+  const id=await gravarPessoa({...d,origem,textoOriginal:(texto||'').slice(0,4000)});return id?{pessoaId:id,nome:d.nome}:null}
+/* bloco do Meu dia: guarda o que foi digitado para não perder quando a tela atualiza */
+function ligarDiario(){const R=$('#main'),box=R.querySelector('#dcBox');if(!box)return;const C=S.diaCap,g=x=>R.querySelector(x);
+  ['atIni','atFim','atTipo','atRef','atDesc'].forEach(k=>{const el=g('#'+k);if(el&&C.form[k]!=null)el.value=C.form[k]});
+  g('#frmAt')?.addEventListener('input',()=>{['atIni','atFim','atTipo','atRef','atDesc'].forEach(k=>{const el=g('#'+k);if(el)C.form[k]=el.value})});
+  g('#frmAt')?.addEventListener('change',()=>{['atTipo'].forEach(k=>{const el=g('#'+k);if(el)C.form[k]=el.value})});
+  if(C.txt)g('#dcTxt').value=C.txt;if(C.st)g('#dcSt').textContent=C.st;if(C.prev)g('#dcPrev').innerHTML=`<img alt="Imagem enviada do documento" src="${C.prev}">`;
+  Object.keys(C.campos).forEach(k=>{const el=g('#dc_'+k);if(el&&C.campos[k]!==undefined){el.value=C.campos[k];el.dataset.auto='1'}});
+  box.addEventListener('toggle',()=>{C.open=box.open});
+  const salvarEstado=()=>{const t=g('#dcTxt');if(t)C.txt=t.value;C.campos=lerAvulso('dc',R);C.sel=g('#dcSel')?.value||''};
+  box.addEventListener('input',salvarEstado);box.addEventListener('change',salvarEstado);
+  g('#dcSel').addEventListener('change',()=>{g('#dcNovo').hidden=!!g('#dcSel').value});
+  ligarCaptura(R,'dc',k=>$('#main').querySelector('#dc_'+k),{root:()=>$('#main'),status:t=>{C.st=t},prev:u=>{C.prev=u}});
+}
+/* bloco dentro da tarefa */
+function blocoAvulsoTarefa(){
+  return `<details class="guia" id="tpBox"><summary><b>Cadastrar contato avulso</b> <span class="small muted">(pessoa que não é cliente)</span></summary>
+  ${camposAvulsoHtml('tp')}
   <div class="row" style="justify-content:flex-end"><button class="btn p" type="button" id="tpSalvar">Cadastrar e vincular à tarefa</button></div></details>`}
 function ligarAvulsoTarefa(m){if(!m||!m.querySelector('#tpBox'))return;const g=x=>m.querySelector(x);
   ligarCaptura(m,'tp',k=>g('#tp_'+k));
-  g('#tpSalvar').onclick=async()=>{const d={};[...CAMPOS_PE.map(c=>c[0]),'vinculo'].forEach(k=>{const el=g('#tp_'+k);if(el)d[k]=el.value.trim()});
+  g('#tpSalvar').onclick=async()=>{const d=lerAvulso('tp',m);
     if(!d.nome){toast('Informe o nome do contato.');g('#tp_nome').focus();return}
     const dup=duplicadoPe(d);if(dup){toast(dup+' Escolha no campo acima.');return}
     d.origem='Tarefa';d.textoOriginal=g('#tpTxt').value.trim().slice(0,4000);
@@ -1420,6 +1442,8 @@ function fichaPessoa(p){
   const tfs=S.tarefas.filter(t=>t.pessoaId===p.id).sort((a,b)=>(a.status==='concluida')-(b.status==='concluida')||(a.prazo||'').localeCompare(b.prazo||''));
   return `<div class="guia"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Tarefas sobre este contato</h3><button class="btn p s" type="button" data-pnt="1">Nova tarefa</button></div>
   ${tfs.length?`<div class="list">${tfs.map(t=>`<div class="item"><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">${esc(nomeM(t.responsavel))} · prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" type="button" data-pabt="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa ainda.</p>'}</div>
+  ${(()=>{const at=S.atividades.flatMap(a=>(a.itens||[]).filter(i=>i.pessoaId===p.id).map(i=>({...i,data:a.data,membroId:a.membroId}))).sort((a,b)=>(b.data+b.ini).localeCompare(a.data+a.ini));
+    return at.length?`<div class="guia"><h3>Atividades com este contato</h3><div class="list">${at.slice(0,10).map(i=>`<div class="item"><div class="b"><div class="small muted">${fd(i.data)} · ${esc(i.ini)} às ${esc(i.fim)} · ${esc(nomeM(i.membroId))} · ${esc(i.tipo)}</div><div class="small">${esc(i.desc)}</div></div></div>`).join('')}</div></div>`:''})()}
   <div class="row">${p.telefone?'<button class="btn s" type="button" data-pwa="1">Mandar WhatsApp</button>':''}${p.clienteId?`<span class="pill ok">Virou cliente: ${esc(nomeCli(p.clienteId)||p.nome)}</span>`:'<button class="btn s" type="button" data-pcli="1">Cadastrar como cliente</button>'}</div>
   ${p.textoOriginal?`<details class="guia"><summary class="small">Dados colados no cadastro</summary><pre class="pre small" style="white-space:pre-wrap">${esc(p.textoOriginal)}</pre></details>`:''}`;
 }
@@ -1492,9 +1516,15 @@ function vDiario(){
   <div class="form" id="frmAt"><label for="atIni">Início<input id="atIni" type="time" value="${ult||'08:00'}"></label><label for="atFim">Fim<input id="atFim" type="time" value="${agora>(ult||'08:00')?agora:''}"></label>
     <label for="atTipo">Tipo<select id="atTipo">${TIPOS_AT.map(t=>`<option>${t}</option>`).join('')}</select></label><label for="atRef">Cliente ou processo<input id="atRef" list="dlRef" placeholder="Comece a digitar o nome"><datalist id="dlRef">${S.clientes.map(c=>`<option value="${esc(c.nome)}">`).join('')}${S.processos.map(p=>`<option value="${esc(p.numero+' · '+nomeCli(p.clienteId))}">`).join('')}</datalist></label>
     <label class="full" for="atDesc">O que foi feito<input id="atDesc" placeholder="Ex.: liguei para o preposto do Banco do Brasil e enviei a 1ª proposta"></label></div>
+  <details class="guia" id="dcBox" ${S.diaCap.open?'open':''}><summary><b>Com quem foi a atividade</b> <span class="small muted">(cole a foto do documento ou os dados da pessoa: o app cadastra o contato junto com a atividade)</span></summary>
+   <div class="form"><label class="full" for="dcSel">Já cadastrado?<select id="dcSel"><option value="">Não, é pessoa nova (preencha abaixo)</option>
+    <optgroup label="Contatos">${S.pessoas.slice().sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(x=>`<option value="p:${x.id}" ${S.diaCap.sel==='p:'+x.id?'selected':''}>${esc(x.nome)}${x.cpf?' · '+esc(x.cpf):''}</option>`).join('')}</optgroup>
+    <optgroup label="Clientes">${S.clientes.slice().sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(x=>`<option value="c:${x.id}" ${S.diaCap.sel==='c:'+x.id?'selected':''}>${esc(x.nome)}</option>`).join('')}</optgroup></select></label></div>
+   <div id="dcNovo" ${S.diaCap.sel?'hidden':''}>${camposAvulsoHtml('dc',S.diaCap.campos)}</div>
+  </details>
   <div class="row" style="justify-content:flex-end"><button class="btn p" id="btnAddAt">Registrar atividade</button></div></section>`:''}
   <section class="card"><header><h2>${fd(d)}</h2></header>
-  ${its.length||cts.length?`<div class="list">${its.map((i,k)=>`<div class="item"><span class="stripe info"></span><div class="b"><div class="t">${esc(i.ini)} às ${esc(i.fim)} · ${esc(i.tipo)} <span class="muted small">(${min2h(i.min)})</span></div><div class="small">${esc(i.desc)}${i.ref?' · '+esc(i.ref):''}</div></div>${proprio?`<button class="btn s d" data-atdel="${k}">Apagar</button>`:''}</div>`).join('')}
+  ${its.length||cts.length?`<div class="list">${its.map((i,k)=>`<div class="item"><span class="stripe info"></span><div class="b"><div class="t">${esc(i.ini)} às ${esc(i.fim)} · ${esc(i.tipo)} <span class="muted small">(${min2h(i.min)})</span></div><div class="small">${esc(i.desc)}${i.ref?' · '+esc(i.ref):''}${i.pessoaId&&nomePe(i.pessoaId)&&nomePe(i.pessoaId)!==i.ref?' · com '+esc(nomePe(i.pessoaId)):''}</div></div>${proprio?`<button class="btn s d" data-atdel="${k}">Apagar</button>`:''}</div>`).join('')}
   ${cts.map(c=>`<div class="item"><span class="stripe"></span><div class="b"><div class="small muted">Contato registrado · ${esc(c.canal)} · ${esc(c.interlocutor)}</div><div class="small">${esc(c.cliente||'')}: ${esc(c.resumo)}</div></div></div>`).join('')}</div>`:'<p class="empty">Nada registrado neste dia.</p>'}</section>`;
 }
 async function addAtividade(){
@@ -1502,9 +1532,17 @@ async function addAtividade(){
   if(!ini||!fim||!desc){toast('Preencha início, fim e o que foi feito.');return}
   document.activeElement&&document.activeElement.blur();
   const m=hm2min(fim)-hm2min(ini);if(m<=0){toast('O fim precisa ser depois do início.');return}
-  const d=S.f.dia||hoje(),id=`${S.me}_${d}`,cur=diaDoc(S.me,d);
-  const itens=[...(cur?.itens||[]),{ini,fim,min:m,tipo:g('#atTipo').value,desc,ref:g('#atRef').value.trim(),ts:Date.now()}];
-  if(await salvar(()=>API.set('atividades',id,{membroId:S.me,data:d,itens,atualizadoTs:Date.now()}),'Atividade registrada')){}
+  const d=S.f.dia||hoje(),id=`${S.me}_${d}`;
+  const item={ini,fim,min:m,tipo:g('#atTipo').value,desc,ref:g('#atRef').value.trim(),ts:Date.now()};
+  const sel=g('#dcSel')?.value||'',dc=g('#dcBox')?lerAvulso('dc',$('#main')):{};const temDados=Object.entries(dc).some(([k,v])=>v&&k!=='uf');
+  if(sel){const [t,x]=sel.split(':');if(t==='p'){item.pessoaId=x;if(!item.ref)item.ref=nomePe(x)}else{item.clienteId=x;if(!item.ref)item.ref=nomeCli(x)}}
+  else if(temDados){if(!dc.nome){toast('Informe o nome da pessoa com quem foi a atividade.');S.diaCap.open=true;g('#dcBox').open=true;g('#dc_nome').focus();return}
+    const r=await contatoDaAtividade(dc,'Meu dia',g('#dcTxt')?.value||'');if(!r)return;
+    if(r.pessoaId)item.pessoaId=r.pessoaId;if(r.clienteId)item.clienteId=r.clienteId;if(!item.ref)item.ref=r.nome;
+    if(r.existente)toast(r.existente==='cliente'?'Essa pessoa já é cliente: a atividade foi ligada ao cadastro dela.':'Contato já existia: a atividade foi ligada a ele.')}
+  const cur=diaDoc(S.me,d);const itens=[...(cur?.itens||[]),item];
+  if(await salvar(()=>API.set('atividades',id,{membroId:S.me,data:d,itens,atualizadoTs:Date.now()}),item.pessoaId&&!sel?'Atividade e contato registrados':'Atividade registrada')){
+    S.diaCap={open:false,txt:'',campos:{},prev:'',st:'',sel:'',form:{}};render()}
 }
 async function delAtividade(k){
   const d=S.f.dia||hoje(),its=itensDia(S.me,d);its.splice(k,1);
@@ -1645,6 +1683,7 @@ function render(){
   S.route=rotaAtual();renderNav();
   const v={diario:vDiario,conferencia:vConf,delegar:vDelegar,hoje:vHoje,atendimento:vAtend,clientes:vClientes,contatos:vContatos,processos:vProcessos,atividades:vAtividades,acordos:vAcordos,tarefas:vTarefas,painel:vPainel,captacao:vCapt,equipe:vEquipe}[S.route];
   $('#main').innerHTML=(S.canWrite?'':'<div class="banner">Seu acesso é só de leitura. Peça a quem administra o app o nível Colaborador.</div>')+v();
+  if(S.route==='diario')ligarDiario();
 }
 document.addEventListener('focusout',()=>{if(S.pendRender){setTimeout(()=>{if(S.pendRender&&!$('#main').contains(document.activeElement)){S.pendRender=false;render()}},50)}});
 $('#main').addEventListener('click',async e=>{
