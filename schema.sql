@@ -20,9 +20,28 @@ grant execute on function public.acordos_is_admin() to authenticated;
 
 alter table public.acordos_docs enable row level security;
 
+-- membro da equipe vinculado ao login atual
+create or replace function public.acordos_meu_membro() returns text
+language sql stable security definer set search_path = public as $$
+  select v.data->>'membroId' from public.acordos_docs v where v.col = 'vinculos' and v.id = auth.uid()::text limit 1;
+$$;
+grant execute on function public.acordos_meu_membro() to authenticated;
+
+-- administrador, coordenador ou diretoria veem as tarefas de todos
+create or replace function public.acordos_ve_tudo() returns boolean
+language sql stable security definer set search_path = public as $$
+  select public.acordos_is_admin() or exists(
+    select 1 from public.acordos_docs e where e.col = 'equipe' and e.id = public.acordos_meu_membro()
+      and coalesce(e.data->>'papel','integrante') in ('coordenador','diretoria'));
+$$;
+grant execute on function public.acordos_ve_tudo() to authenticated;
+
 drop policy if exists acordos_ler on public.acordos_docs;
 create policy acordos_ler on public.acordos_docs for select to authenticated
-  using (col <> 'conferencia' or public.acordos_is_admin());
+  using (case
+    when col = 'conferencia' then public.acordos_is_admin()
+    when col = 'tarefas' then public.acordos_ve_tudo() or data->>'responsavel' = public.acordos_meu_membro()
+    else true end);
 
 drop policy if exists acordos_inserir on public.acordos_docs;
 create policy acordos_inserir on public.acordos_docs for insert to authenticated
