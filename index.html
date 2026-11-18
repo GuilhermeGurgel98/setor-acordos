@@ -567,17 +567,21 @@ function pillTarefa(t){const s=stTarefa(t),p=prazoTs(t),now=Date.now();
 const podeEditarTarefa=t=>isGestor()||t.criadoPor===S.me;
 const podeExecutar=t=>isGestor()||t.responsavel===S.me;
 function formTarefa(t={},pre={}){
-  const novo=!t.id;
-  const fields=[{k:'titulo',label:'Tarefa',full:true,req:true},{k:'responsavel',label:'Responsável',type:'select',options:opM,req:true},
+  const novo=!t.id,gestor=isGestor();
+  if(!gestor&&!S.me){toast('Escolha seu nome na barra lateral para lançar tarefas.');return}
+  const paraMim=!gestor||(pre.responsavel??t.responsavel??S.me)===S.me;
+  const optResp=gestor?opM:()=>opM().filter(([id])=>id===S.me||id===t.responsavel);
+  const fields=[{k:'titulo',label:'Tarefa',full:true,req:true},{k:'responsavel',label:'Responsável',type:'select',options:optResp,req:true,blank:false},
     {k:'prazo',label:'Prazo (dia)',type:'date',req:true},{k:'prazoHora',label:'Até que horas',type:'time'},
     {k:'prioridade',label:'Prioridade',type:'select',options:['Alta','Normal','Baixa'],blank:false},
     {k:'pop',label:'POP aplicável',type:'select',options:Object.entries(POPS).map(([k,v])=>[k,k+' '+v[0]]),blank:'Nenhum'},
-    {k:'clienteId',label:'Cliente',type:'select',options:opClientes,blank:'Nenhum'},{k:'pessoaId',label:'Contato (não cliente)',type:'select',options:opPessoas,blank:'Nenhum'},{k:'processoId',label:'Processo',type:'select',options:()=>S.processos.slice().sort((a,b)=>(nomeCli(a.clienteId)||'').localeCompare(nomeCli(b.clienteId)||'')).map(p=>[p.id,p.numero+' · '+nomeCli(p.clienteId)]),blank:'Nenhum'},{k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:'Instruções para quem vai fazer',type:'textarea',full:true}];
-  abrirForm({titulo:novo?'Delegar tarefa':'Editar tarefa',fields,values:{prioridade:'Normal',prazo:hoje(),prazoHora:'18:00',responsavel:S.me||'',...pre,...t},botao:novo?'Delegar':'Salvar',
+    {k:'clienteId',label:'Cliente',type:'select',options:opClientes,blank:'Nenhum'},{k:'pessoaId',label:'Contato (não cliente)',type:'select',options:opPessoas,blank:'Nenhum'},{k:'processoId',label:'Processo',type:'select',options:()=>S.processos.slice().sort((a,b)=>(nomeCli(a.clienteId)||'').localeCompare(nomeCli(b.clienteId)||'')).map(p=>[p.id,p.numero+' · '+nomeCli(p.clienteId)]),blank:'Nenhum'},{k:'casoId',label:'Acordo vinculado',type:'select',options:opCasos,blank:'Nenhum'},{k:'obs',label:paraMim?'Detalhes da tarefa':'Instruções para quem vai fazer',type:'textarea',full:true}];
+  abrirForm({titulo:novo?(paraMim?'Nova tarefa para mim':'Delegar tarefa'):'Editar tarefa',fields,values:{prioridade:'Normal',prazo:hoje(),prazoHora:'18:00',responsavel:S.me||'',...pre,...t},botao:novo?(paraMim?'Lançar tarefa':'Delegar'):'Salvar',
     extra:blocoAvulsoTarefa(),
     apagar:novo||!podeEditarTarefa(t)?null:async()=>salvar(()=>API.del('tarefas',t.id),'Tarefa apagada'),
-    onSubmit:async v=>{const id=t.id||nid();const doc={...t,...v,status:t.status||'aberta',criadoEm:t.criadoEm||hoje(),criadoTs:t.criadoTs||Date.now(),criadoPor:t.criadoPor||S.me||'',atualizacoes:t.atualizacoes||[]};delete doc.id;
-      if(v.pop!==t.pop)doc.check={};return salvar(()=>API.set('tarefas',id,doc),novo?'Tarefa delegada':'Tarefa salva')}});
+    onSubmit:async v=>{if(!gestor&&!t.id)v.responsavel=S.me;const id=t.id||nid();const doc={...t,...v,status:t.status||'aberta',criadoEm:t.criadoEm||hoje(),criadoTs:t.criadoTs||Date.now(),criadoPor:t.criadoPor||S.me||'',atualizacoes:t.atualizacoes||[]};delete doc.id;
+      doc.propria=!!doc.criadoPor&&doc.responsavel===doc.criadoPor;
+      if(v.pop!==t.pop)doc.check={};return salvar(()=>API.set('tarefas',id,doc),novo?(doc.propria?'Tarefa lançada para você':'Tarefa delegada'):'Tarefa salva')}});
   ligarAvulsoTarefa($('#layer .modal'));
 }
 async function iniciar(t){await salvar(()=>API.upd('tarefas',t.id,{status:'andamento',iniciadaTs:Date.now(),iniciadaPor:S.me||''}),'Tarefa iniciada. O tempo está contando.')}
@@ -657,7 +661,7 @@ function vDelegar(){
   ${ts.length?`<div class="tw"><table><tr><th>Tarefa</th><th>Responsável</th><th>Delegada</th><th>Prazo</th><th>Situação</th><th>Tempo</th><th>Última atualização</th></tr>
   ${ts.map(t=>{const s=stTarefa(t);const u=(t.atualizacoes||[]).slice(-1)[0];
     const tempo=s==='concluida'?'Execução '+dur(t.concluidaTs-(t.iniciadaTs||t.criadoTs)):s==='andamento'?'Há '+dur(now-t.iniciadaTs)+' em execução':'Aguardando há '+dur(now-(t.criadoTs||now));
-    return `<tr class="click" data-t="${t.id}"><td><b style="white-space:normal">${esc(t.titulo)}</b>${t.clienteId&&nomeCli(t.clienteId)?`<div class="small muted">${esc(nomeCli(t.clienteId))}</div>`:''}${t.pessoaId&&nomePe(t.pessoaId)?`<div class="small muted">Contato: ${esc(nomePe(t.pessoaId))}</div>`:''}${t.prioridade==='Alta'?' <span class="pill bad">Alta</span>':''}</td><td>${esc(nomeM(t.responsavel))}</td><td>${fdt(t.criadoTs)}</td><td>${fd(t.prazo)} ${esc(t.prazoHora||'')}</td><td>${pillTarefa(t)}</td><td class="small">${tempo}</td>
+    return `<tr class="click" data-t="${t.id}"><td><b style="white-space:normal">${esc(t.titulo)}</b>${t.clienteId&&nomeCli(t.clienteId)?`<div class="small muted">${esc(nomeCli(t.clienteId))}</div>`:''}${t.pessoaId&&nomePe(t.pessoaId)?`<div class="small muted">Contato: ${esc(nomePe(t.pessoaId))}</div>`:''}${t.prioridade==='Alta'?' <span class="pill bad">Alta</span>':''}</td><td>${esc(nomeM(t.responsavel))}${t.criadoPor&&t.criadoPor===t.responsavel?'<div class="small muted">Lançada por ele</div>':''}</td><td>${fdt(t.criadoTs)}</td><td>${fd(t.prazo)} ${esc(t.prazoHora||'')}</td><td>${pillTarefa(t)}</td><td class="small">${tempo}</td>
     <td class="small">${u?`<span class="muted">${fdt(u.ts)}</span><br>${esc(u.texto.slice(0,90))}`:'<span class="muted">Sem atualização</span>'}</td></tr>`}).join('')}</table></div>`:'<p class="empty">Nenhuma tarefa neste filtro.</p>'}</section>`;
 }
 
@@ -674,7 +678,7 @@ function vHoje(){
   const dHoje=metricas(eu,[h,h]),dSem=metricas(eu,[addDias(h,-6),h]);
   const st=t=>prazoTs(t)<Date.now()?'bad':t.prazo===h?'warn':stTarefa(t)==='andamento'?'info':'';
   return `<div class="top"><div><h1>Bom trabalho, ${esc((membro(eu)?.nome||'').split(' ').slice(0,2).join(' '))}</h1><p>${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}. Comece pelos itens vermelhos.</p></div>
-    <div class="row"><button class="btn" onclick="formTarefa()">Nova tarefa</button><button class="btn p" onclick="formContato()">Registrar contato</button></div></div>
+    <div class="row"><button class="btn" onclick="formTarefa({},{responsavel:S.me||''})">Nova tarefa para mim</button><button class="btn p" onclick="formContato()">Registrar contato</button></div></div>
   <div class="tiles">
     <div class="tile"><div class="k">Contatos hoje</div><div class="v">${dHoje.cts}</div><div class="s">${dHoje.ef} efetivos</div></div>
     <div class="tile"><div class="k">Contatos na semana</div><div class="v">${dSem.cts}</div><div class="s">${pct(dSem.efPct)} efetivos</div></div>
@@ -685,7 +689,7 @@ function vHoje(){
   ${msgCard()}
   <div class="grid g2">
     <section class="card"><header><h2>Minhas tarefas</h2><span class="pill n">${tf.length}</span></header>
-      ${tf.length?`<div class="list">${tf.map(t=>`<div class="item"><span class="stripe ${st(t)}"></span><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">${t.clienteId&&nomeCli(t.clienteId)?esc(nomeCli(t.clienteId))+' · ':''}${t.pessoaId&&nomePe(t.pessoaId)?'Contato: '+esc(nomePe(t.pessoaId))+' · ':''}Prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')} · ${esc(t.prioridade)}${t.criadoPor&&t.criadoPor!==eu?' · de '+esc(nomeM(t.criadoPor)):''}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" data-t="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa aberta.</p>'}</section>
+      ${tf.length?`<div class="list">${tf.map(t=>`<div class="item"><span class="stripe ${st(t)}"></span><div class="b"><div class="t">${esc(t.titulo)}</div><div class="small muted">${t.clienteId&&nomeCli(t.clienteId)?esc(nomeCli(t.clienteId))+' · ':''}${t.pessoaId&&nomePe(t.pessoaId)?'Contato: '+esc(nomePe(t.pessoaId))+' · ':''}Prazo ${fd(t.prazo)} ${esc(t.prazoHora||'')} · ${esc(t.prioridade)}${t.criadoPor&&t.criadoPor!==eu?' · de '+esc(nomeM(t.criadoPor)):' · lançada por você'}</div><div style="margin-top:3px">${pillTarefa(t)}</div></div><button class="btn s" data-t="${t.id}">Abrir</button></div>`).join('')}</div>`:'<p class="empty">Nenhuma tarefa aberta.</p>'}</section>
     <section class="card"><header><h2>Retornos combinados</h2><span class="pill n">${ret.length+avulsos.length}</span></header>
       ${ret.length+avulsos.length?`<div class="list">${ret.map(c=>`<div class="item"><span class="stripe ${c.proximaData<h?'bad':'warn'}"></span><div class="b"><div class="t">${esc(c.cliente)} x ${esc(c.contraparte)}</div><div class="small muted">${fd(c.proximaData)} · ${esc(c.proximoPasso||'retomar negociação')}</div></div><button class="btn s" data-c="${c.id}">Abrir</button></div>`).join('')}
       ${avulsos.map(c=>`<div class="item"><span class="stripe warn"></span><div class="b"><div class="t">${esc(c.cliente||'Contato avulso')}</div><div class="small muted">${fd(c.proximaData)} · ${esc(c.proximoPasso||c.resumo)}</div></div><button class="btn s" data-rf="${c.id}">Feito</button></div>`).join('')}</div>`:'<p class="empty">Nenhum retorno para hoje.</p>'}</section>
@@ -740,7 +744,7 @@ function vTarefas(){
   if(!f.resp&&!isGestor()&&S.me)ts=ts.filter(t=>t.responsavel===S.me);
   if(f.status==='abertas')ts=ts.filter(t=>t.status!=='concluida');else if(f.status==='concluidas')ts=ts.filter(t=>t.status==='concluida');else if(f.status==='atrasadas')ts=ts.filter(t=>t.status!=='concluida'&&t.prazo<h);
   ts.sort((a,b)=>(a.prazo||'').localeCompare(b.prazo||''));
-  return `<div class="top"><div><h1>Tarefas</h1><p>${isGestor()?'Lance e distribua tarefas com prazo e responsável. Tarefas com POP só fecham com o checklist completo.':'Suas tarefas e as da equipe. Tarefas com POP só fecham com o checklist completo.'}</p></div><button class="btn p" onclick="formTarefa()">Nova tarefa</button></div>
+  return `<div class="top"><div><h1>Tarefas</h1><p>${isGestor()?'Lance e distribua tarefas com prazo e responsável. Tarefas com POP só fecham com o checklist completo.':'Suas tarefas: as que a coordenação delegou e as que você lança para si. Tarefas com POP só fecham com o checklist completo.'}</p></div><div class="row">${isGestor()?'<button class="btn" onclick="formTarefa({},{responsavel:S.me||\'\'})">Nova tarefa para mim</button><button class="btn p" onclick="formTarefa({},{responsavel:\'\'})">Delegar tarefa</button>':'<button class="btn p" onclick="formTarefa()">Nova tarefa para mim</button>'}</div></div>
   <div class="filters"><select id="fResp"><option value="">Todos</option>${opM().map(([a,b])=>`<option value="${a}" ${f.resp===a?'selected':''}>${esc(b)}</option>`).join('')}</select>
   <select id="fStatus">${[['abertas','Abertas'],['atrasadas','Atrasadas'],['concluidas','Concluídas'],['todas','Todas']].map(([a,b])=>`<option value="${a}" ${f.status===a?'selected':''}>${b}</option>`).join('')}</select></div>
   <section class="card">${ts.length?`<div class="tw"><table><tr><th>Prazo</th><th>Tarefa</th><th>Responsável</th><th>Prioridade</th><th>POP</th><th>Situação</th></tr>
